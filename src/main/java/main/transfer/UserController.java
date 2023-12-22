@@ -48,8 +48,8 @@ public class UserController {
 
             user.setId1c(userList.get(i).getId1c());
             user.setName(userList.get(i).getName());
-            user.setPhone(userList.get(i).getPhone());
-            user.setPostAdres(userList.get(i).getPostAdres());
+            //user.setPhone(userList.get(i).getPhone());
+            user.setPostAdress(userList.get(i).getPostAdress());
 
             try {
                 userRepository.save(user);
