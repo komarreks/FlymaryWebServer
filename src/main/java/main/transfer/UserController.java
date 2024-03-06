@@ -1,8 +1,12 @@
 package main.transfer;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import main.answers.StatusLoadUsers;
 import main.model.User;
 import main.model.UserRepository;
+import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,32 +38,41 @@ public class UserController {
     }
 
     @PostMapping(value = "users/loadAllUsers", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity loadUsers(@RequestBody List<User> userList){
+    public ResponseEntity loadUsers(@RequestBody ArrayNode userList){
         StatusLoadUsers statusLoadUsers = new StatusLoadUsers();
         statusLoadUsers.setStatus(true);
         statusLoadUsers.setError("");
 
-        for(int i = 0; i<userList.size(); i++){
-            User user = userRepository.findById1c(userList.get(i).getId1c());
+        int countUsers = userList.size() - 1;
 
-            if (user==null){
+        userList.forEach(userNode -> {
+            String id1c = String.valueOf(userNode.get("id1c"));
+
+            boolean modified = false;
+
+            User user = userRepository.findById1c(id1c);
+
+            if (user == null){
                 user = new User();
+                user.setId1c(id1c);
+
+                modified = true;
             }
 
-            user.setId1c(userList.get(i).getId1c());
-            user.setName(userList.get(i).getName());
-            //user.setPhone(userList.get(i).getPhone());
-            user.setPostAdress(userList.get(i).getPostAdress());
+            String name = String.valueOf(userNode.get("name"));
 
-            try {
+            if (!user.getName().equals(name)){
+                user.setName(name);
+                modified = true;
+            }
+
+            if (modified){
                 userRepository.save(user);
-            }catch (Exception ex){
-                statusLoadUsers.setStatus(false);
-                statusLoadUsers.setError(ex.getMessage());
-                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(statusLoadUsers);
             }
 
-        }
+            statusLoadUsers.addLoadingUser(id1c);
+        });
+//
 
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoadUsers);
     }

@@ -12,8 +12,13 @@ public class Phone {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     int id;
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "user_id")
     User user;
     String phone;
+
+    public Phone(User user, String phone){
+        this.phone = phone;
+        this.user = user;
+    }
 }
