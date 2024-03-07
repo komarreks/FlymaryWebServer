@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import main.answers.StatusLoadUsers;
-import main.model.User;
-import main.model.UserRepository;
+import main.model.*;
 import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +23,8 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PhonesRepository phonesRepository;
 
     @GetMapping("users/getAllUsers")
     public List<User> getUsers(){
@@ -43,7 +44,7 @@ public class UserController {
         statusLoadUsers.setStatus(true);
         statusLoadUsers.setError("");
 
-        int countUsers = userList.size() - 1;
+        UsersReaper usersReaper = new UsersReaper(phonesRepository);
 
         userList.forEach(userNode -> {
             String id1c = String.valueOf(userNode.get("id1c"));
@@ -65,6 +66,15 @@ public class UserController {
                 user.setName(name);
                 modified = true;
             }
+
+            ArrayNode phonesArrayNode = (ArrayNode) userNode.get("phones");
+            List<String> phonesList = new ArrayList<>();
+            phonesArrayNode.forEach(phoneNode -> {
+                String phone = phoneNode.asText();
+                phonesList.add(phone);
+            });
+
+            modified = usersReaper.phonesAnalysis(user, phonesList);
 
             if (modified){
                 userRepository.save(user);

@@ -15,17 +15,22 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    String id1c;
-    String name;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    List<Phone> phones;
+    private String id1c;
+    private String name;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Phone> phones;
     @Column(name = "post_adress")
-    String postAdress;
+    private String postAdress;
 
     public User(){
         id1c = "";
         name = "";
         phones = new ArrayList<>();
         postAdress = "";
+    }
+
+    public void deletePhone(Phone phone){
+//        int index = phones.indexOf(phone);
+        phones.remove(phone);
     }
 }

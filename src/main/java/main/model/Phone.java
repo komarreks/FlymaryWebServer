@@ -21,4 +21,9 @@ public class Phone {
         this.phone = phone;
         this.user = user;
     }
+
+    public Phone(){
+        user = null;
+        phone = "";
+    }
 }
