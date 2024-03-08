@@ -25,6 +25,8 @@ public class UserController {
     private UserRepository userRepository;
     @Autowired
     private PhonesRepository phonesRepository;
+    @Autowired
+    private PostAdressRepository postAdressRepository;
 
     @GetMapping("users/getAllUsers")
     public List<User> getUsers(){
@@ -44,7 +46,7 @@ public class UserController {
         statusLoadUsers.setStatus(true);
         statusLoadUsers.setError("");
 
-        UsersReaper usersReaper = new UsersReaper(phonesRepository);
+        UsersReaper usersReaper = new UsersReaper(phonesRepository, postAdressRepository);
 
         userList.forEach(userNode -> {
             String id1c = String.valueOf(userNode.get("id1c"));
@@ -75,6 +77,15 @@ public class UserController {
             });
 
             modified = usersReaper.phonesAnalysis(user, phonesList);
+
+            ArrayNode adressesArrayNode = (ArrayNode) userNode.get("postAdresses");
+            List<String> adressesList = new ArrayList<>();
+            adressesArrayNode.forEach(adressNode -> {
+                String adress = adressNode.asText();
+                adressesList.add(adress);
+            });
+
+            modified = usersReaper.postAdressesAnalysis(user, adressesList);
 
             if (modified){
                 userRepository.save(user);

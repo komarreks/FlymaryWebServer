@@ -19,18 +19,21 @@ public class User {
     private String name;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Phone> phones;
-    @Column(name = "post_adress")
-    private String postAdress;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PostAdress> postAdresses;
 
     public User(){
         id1c = "";
         name = "";
         phones = new ArrayList<>();
-        postAdress = "";
+        postAdresses = new ArrayList<>();
     }
 
     public void deletePhone(Phone phone){
-//        int index = phones.indexOf(phone);
         phones.remove(phone);
+    }
+
+    public void deletePostAdress(PostAdress postAdress){
+        postAdresses.remove(postAdress);
     }
 }

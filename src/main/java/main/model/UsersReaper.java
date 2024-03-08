@@ -14,9 +14,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class UsersReaper {
     @Autowired
     private PhonesRepository phonesRepository;
+    @Autowired
+    private PostAdressRepository postAdressRepository;
 
-    public UsersReaper(PhonesRepository phonesRepository){
+    public UsersReaper(PhonesRepository phonesRepository, PostAdressRepository postAdressRepository){
         this.phonesRepository = phonesRepository;
+        this.postAdressRepository = postAdressRepository;
     }
 
     public boolean phonesAnalysis(User user, List<String> phones){
@@ -67,6 +70,62 @@ public class UsersReaper {
                 if (!phones.contains(phoneAsString)){
                     phonesRepository.delete(phoneFDB);
                     user.deletePhone(phoneFDB);
+                    modified.set(true);
+                }
+
+            });
+        }
+        return modified.get();
+    }
+
+    public boolean postAdressesAnalysis(User user, List<String> postAdresses){
+
+        AtomicBoolean userModified = new AtomicBoolean(false);
+
+        postAdresses.forEach(postAdress ->{
+            PostAdress postAdressFDB = postAdressRepository.findByPostAdress(postAdress);
+
+            boolean modified = false;
+
+            if (postAdressFDB == null) {
+                postAdressFDB = new PostAdress(user, postAdress);
+                modified = true;
+            }
+
+            if (!postAdressFDB.getUser().getId1c().equals(user.getId1c())) {
+                postAdressFDB.setUser(user);
+                modified = true;
+            }
+
+            if (!user.getId1c().equals(postAdressFDB.getUser().getId1c())){
+                postAdressFDB.setUser(user);
+                modified = true;
+            }
+
+            if (modified){
+                postAdressRepository.save(postAdressFDB);
+                userModified.set(true);
+            }
+
+        });
+
+        boolean isDeletedAdresses = clearDeletedPostAdresses(user,postAdresses);
+
+        return userModified.get() || isDeletedAdresses;
+    }
+
+    private boolean clearDeletedPostAdresses(User user, List<String> postAdresses) {
+        List<PostAdress> postAdressFDB = postAdressRepository.findByUser(user);
+
+        AtomicBoolean modified = new AtomicBoolean(false);
+
+        if (postAdressFDB != null) {
+            postAdressFDB.forEach(adressFDB -> {
+                String adressAsString = adressFDB.getPostAdress();
+
+                if (!postAdresses.contains(adressAsString)) {
+                    postAdressRepository.delete(adressFDB);
+                    user.deletePostAdress(adressFDB);
                     modified.set(true);
                 }
 
