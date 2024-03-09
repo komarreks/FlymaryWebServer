@@ -1,8 +1,9 @@
-package main.model;
+package main.model.user.adress;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import main.model.user.User;
 
 @Entity
 @Setter

@@ -1,5 +1,6 @@
-package main.model;
+package main.model.user.adress;
 
+import main.model.user.User;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

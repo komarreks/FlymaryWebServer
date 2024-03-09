@@ -1,8 +1,10 @@
-package main.model;
+package main.model.user;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import main.model.user.phone.Phone;
+import main.model.user.adress.PostAdress;
 
 import java.util.ArrayList;
 import java.util.List;

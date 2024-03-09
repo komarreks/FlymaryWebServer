@@ -1,11 +1,12 @@
 package main.transfer;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import main.answers.StatusLoadUsers;
-import main.model.*;
-import org.apache.tomcat.util.json.JSONParser;
+import main.model.user.User;
+import main.model.user.UserRepository;
+import main.model.user.UsersReaper;
+import main.model.user.adress.PostAdressRepository;
+import main.model.user.phone.PhonesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

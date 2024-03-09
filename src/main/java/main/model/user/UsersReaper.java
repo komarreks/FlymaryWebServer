@@ -1,7 +1,12 @@
-package main.model;
+package main.model.user;
 
 import lombok.Getter;
 import lombok.Setter;
+import main.model.user.User;
+import main.model.user.adress.PostAdress;
+import main.model.user.adress.PostAdressRepository;
+import main.model.user.phone.Phone;
+import main.model.user.phone.PhonesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
