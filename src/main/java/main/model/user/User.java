@@ -8,6 +8,7 @@ import main.model.user.adress.PostAdress;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Entity
 @Getter
@@ -37,5 +38,25 @@ public class User {
 
     public void deletePostAdress(PostAdress postAdress){
         postAdresses.remove(postAdress);
+    }
+
+    public String phonesToString(){
+        StringBuilder sb = new StringBuilder("");
+        AtomicReference<String> appendix = new AtomicReference<>("");
+        phones.forEach(phone -> {
+            sb.append(phone.getPhone() + appendix.get());
+            appendix.set("; ");
+        });
+        return sb.toString();
+    }
+
+    public String adressesToString(){
+        StringBuilder sb = new StringBuilder("");
+        AtomicReference<String> appendix = new AtomicReference<>("");
+        postAdresses.forEach(adress -> {
+            sb.append(adress.getPostAdress() + appendix.get());
+            appendix.set("; ");
+        });
+        return sb.toString();
     }
 }

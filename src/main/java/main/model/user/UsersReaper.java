@@ -2,7 +2,6 @@ package main.model.user;
 
 import lombok.Getter;
 import lombok.Setter;
-import main.model.user.User;
 import main.model.user.adress.PostAdress;
 import main.model.user.adress.PostAdressRepository;
 import main.model.user.phone.Phone;
@@ -41,12 +40,12 @@ public class UsersReaper {
                 modified = true;
             }
 
-            if (!phoneFromDB.user.getId1c().equals(user.getId1c())) {
+            if (!phoneFromDB.getUser().getId1c().equals(user.getId1c())) {
                 phoneFromDB.setUser(user);
                 modified = true;
             }
 
-            if (!user.getId1c().equals(phoneFromDB.user.getId1c())){
+            if (!user.getId1c().equals(phoneFromDB.getUser().getId1c())){
                 phoneFromDB.setUser(user);
                 modified = true;
             }

@@ -1,6 +1,10 @@
 package main.transfer;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import main.answers.StatusLoadUsers;
 import main.model.user.User;
 import main.model.user.UserRepository;
@@ -11,15 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
@@ -29,19 +31,25 @@ public class UserController {
     @Autowired
     private PostAdressRepository postAdressRepository;
 
-    @GetMapping("users/getAllUsers")
-    public List<User> getUsers(){
+    @GetMapping(value = "/getAllUsers/")
+    public ResponseEntity getUsers(){
         Iterable<User> userIterable = userRepository.findAll();
-        List<User> userList = new ArrayList<>();
+
+        ArrayNode userList = new ArrayNode(new JsonNodeFactory(false));
 
         userIterable.forEach(user -> {
-            userList.add(user);
+            ObjectNode userNode = new ObjectNode(new JsonNodeFactory(false));
+            userNode.put("id1c", user.getId1c());
+            userNode.put("name", user.getName());
+            userNode.put("phones", user.phonesToString());
+            userNode.put("adresses", user.adressesToString());
+            userList.add(userNode);
         });
 
-        return userList;
+        return new ResponseEntity(userList,HttpStatus.OK);
     }
 
-    @PostMapping(value = "users/loadAllUsers", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(value = "/loadAllUsers", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity loadUsers(@RequestBody ArrayNode userList){
         StatusLoadUsers statusLoadUsers = new StatusLoadUsers();
         statusLoadUsers.setStatus(true);
@@ -94,7 +102,6 @@ public class UserController {
 
             statusLoadUsers.addLoadingUser(id1c);
         });
-//
 
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoadUsers);
     }
