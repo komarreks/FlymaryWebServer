@@ -64,11 +64,15 @@ public class UserController {
 
             User user = userRepository.findById1c(id1c);
 
-            if (user == null){
+            int deleted = Integer.parseInt(String.valueOf(userNode.get("deleted")));
+
+            if (user == null && deleted == 0){
                 user = new User();
                 user.setId1c(id1c);
 
                 modified = true;
+            } else if (user != null && deleted == 1) {
+                userRepository.delete(user);
             }
 
             String name = String.valueOf(userNode.get("name"));
