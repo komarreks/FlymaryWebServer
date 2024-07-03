@@ -73,33 +73,35 @@ public class UserController {
                 userRepository.delete(user);
             }
 
-            String name = userNode.get("name").textValue();
+            if (deleted == 0){
+                String name = userNode.get("name").textValue();
 
-            if (!user.getName().equals(name)){
-                user.setName(name);
-                modified = true;
-            }
+                if (!user.getName().equals(name)){
+                    user.setName(name);
+                    modified = true;
+                }
 
-            ArrayNode phonesArrayNode = (ArrayNode) userNode.get("phones");
-            List<String> phonesList = new ArrayList<>();
-            phonesArrayNode.forEach(phoneNode -> {
-                String phone = phoneNode.asText();
-                phonesList.add(phone);
-            });
+                ArrayNode phonesArrayNode = (ArrayNode) userNode.get("phones");
+                List<String> phonesList = new ArrayList<>();
+                phonesArrayNode.forEach(phoneNode -> {
+                    String phone = phoneNode.asText();
+                    phonesList.add(phone);
+                });
 
-            modified = usersReaper.phonesAnalysis(user, phonesList);
+                modified = usersReaper.phonesAnalysis(user, phonesList);
 
-            ArrayNode adressesArrayNode = (ArrayNode) userNode.get("postAdresses");
-            List<String> adressesList = new ArrayList<>();
-            adressesArrayNode.forEach(adressNode -> {
-                String adress = adressNode.asText();
-                adressesList.add(adress);
-            });
+                ArrayNode adressesArrayNode = (ArrayNode) userNode.get("postAdresses");
+                List<String> adressesList = new ArrayList<>();
+                adressesArrayNode.forEach(adressNode -> {
+                    String adress = adressNode.asText();
+                    adressesList.add(adress);
+                });
 
-            modified = usersReaper.postAdressesAnalysis(user, adressesList);
+                modified = usersReaper.postAdressesAnalysis(user, adressesList);
 
-            if (modified){
-                userRepository.save(user);
+                if (modified){
+                    userRepository.save(user);
+                }
             }
 
             statusLoadUsers.addLoading(id1c);
