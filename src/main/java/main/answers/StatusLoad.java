@@ -8,12 +8,12 @@ import java.util.List;
 
 @Getter
 @Setter
-public class StatusLoadUsers {
+public class StatusLoad {
     private boolean status;
     private String error;
-    private List<String> loadedUsers = new ArrayList<>();
+    private List<String> loaded = new ArrayList<>();
 
-    public void addLoadingUser(String id1c){
-        loadedUsers.add(id1c);
+    public void addLoading(String id1c){
+        loaded.add(id1c);
     }
 }

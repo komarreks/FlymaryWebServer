@@ -1,11 +1,9 @@
 package main.transfer;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import main.answers.StatusLoadUsers;
+import main.answers.StatusLoad;
 import main.model.user.User;
 import main.model.user.UserRepository;
 import main.model.user.UsersReaper;
@@ -51,20 +49,20 @@ public class UserController {
 
     @PostMapping(value = "/loadAllUsers", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity loadUsers(@RequestBody ArrayNode userList){
-        StatusLoadUsers statusLoadUsers = new StatusLoadUsers();
+        StatusLoad statusLoadUsers = new StatusLoad();
         statusLoadUsers.setStatus(true);
         statusLoadUsers.setError("");
 
         UsersReaper usersReaper = new UsersReaper(phonesRepository, postAdressRepository);
 
         userList.forEach(userNode -> {
-            String id1c = String.valueOf(userNode.get("id1c"));
+            String id1c = userNode.get("id1c").textValue();
 
             boolean modified = false;
 
             User user = userRepository.findById1c(id1c);
 
-            int deleted = Integer.parseInt(String.valueOf(userNode.get("deleted")));
+            int deleted = userNode.get("deleted").intValue();
 
             if (user == null && deleted == 0){
                 user = new User();
@@ -75,7 +73,7 @@ public class UserController {
                 userRepository.delete(user);
             }
 
-            String name = String.valueOf(userNode.get("name"));
+            String name = userNode.get("name").textValue();
 
             if (!user.getName().equals(name)){
                 user.setName(name);
@@ -104,7 +102,7 @@ public class UserController {
                 userRepository.save(user);
             }
 
-            statusLoadUsers.addLoadingUser(id1c);
+            statusLoadUsers.addLoading(id1c);
         });
 
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoadUsers);
