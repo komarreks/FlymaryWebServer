@@ -2,10 +2,10 @@ package main.transfer;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import main.answers.StatusLoad;
+import main.fileTransfer.FileUploader;
 import main.model.goods.Catalog;
 import main.model.goods.CatalogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/goods")
@@ -49,11 +48,17 @@ public class GoodsController {
             }
 
             if (!delete){
-                catalog.setVersion(jsonNode.get("version").intValue());
+                catalog.setVersion(jsonNode.get("version").asInt());
                 catalog.setName(jsonNode.get("name").textValue());
                 catalog.setTextButton(jsonNode.get("textButton").textValue());
+
+                String image = jsonNode.get("image").textValue();
+                catalog.setImagePath(FileUploader.safeImage(image, catalog.getName(), "jpg","catalogs"));
+
                 catalogRepository.save(catalog);
                 modify = true;
+
+
             }
 
             if (modify || delete){

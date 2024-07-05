@@ -20,6 +20,8 @@ public class Catalog {
 
     private String textButton;
 
+    private String imagePath;
+
     private int version;
 
 }
