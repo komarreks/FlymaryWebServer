@@ -1,4 +1,4 @@
-package main.model.goods;
+package main.model.catalog;
 
 import jakarta.persistence.*;
 import lombok.Getter;

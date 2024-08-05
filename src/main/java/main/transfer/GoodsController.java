@@ -1,12 +1,18 @@
 package main.transfer;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.mysql.cj.xdevapi.JsonArray;
 import main.answers.StatusLoad;
 import main.fileTransfer.FileUploader;
-import main.model.goods.Catalog;
-import main.model.goods.CatalogNodes;
-import main.model.goods.CatalogNodesRepository;
-import main.model.goods.CatalogRepository;
+import main.model.catalog.Catalog;
+import main.model.catalog.CatalogNodes;
+import main.model.catalog.CatalogNodesRepository;
+import main.model.catalog.CatalogRepository;
+import main.model.propertyes.Property;
+import main.model.propertyes.PropertyReposytory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/goods")
@@ -26,6 +32,8 @@ public class GoodsController {
     CatalogRepository catalogRepository;
     @Autowired
     CatalogNodesRepository catalogNodesRepository;
+    @Autowired
+    PropertyReposytory propertyReposytory;
 
     @PostMapping(value = "/updateCatalogs", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity updateCatalogs(@RequestBody ArrayNode catalogList){
@@ -58,10 +66,23 @@ public class GoodsController {
                 String image = jsonNode.get("image").textValue();
                 catalog.setImagePath(FileUploader.safeImage(image, catalog.getName(), "jpg","catalogs"));
 
+                ObjectReader reader = new ObjectMapper().readerFor(new TypeReference<List<String>>() {
+                });
+
+                try {
+                    catalog.loadGoodPropertyes(reader.readValue(jsonNode.get("goodsPropertyes")));
+                }catch (Exception e){
+
+                }
+
+                try {
+                    catalog.loadcharacPropertyes(reader.readValue(jsonNode.get("characPropertyes")));
+                }catch (Exception e){
+
+                }
+
                 catalogRepository.save(catalog);
                 modify = true;
-
-
             }
 
             if (modify || delete){
@@ -115,6 +136,31 @@ public class GoodsController {
                 statusLoad.addLoading(node.getId1c());
             }
 
+        });
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
+    }
+
+    @PostMapping(value = "updatePropertyes", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity updatePropertyes(@RequestBody ArrayNode propertyList){
+        StatusLoad statusLoad = new StatusLoad();
+        statusLoad.setStatus(true);
+
+        propertyList.forEach(jsonNode -> {
+            String id1c = jsonNode.get("id1c").textValue().trim();
+
+            Property property = propertyReposytory.findById1c(id1c);
+
+            if (property == null){
+                property = new Property();
+                property.setId1c(id1c);
+            }
+
+            property.setName(jsonNode.get("name").textValue());
+
+            propertyReposytory.save(property);
+
+            statusLoad.addLoading(id1c);
         });
 
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
