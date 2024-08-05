@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import main.answers.StatusLoad;
 import main.fileTransfer.FileUploader;
 import main.model.goods.Catalog;
+import main.model.goods.CatalogNodes;
+import main.model.goods.CatalogNodesRepository;
 import main.model.goods.CatalogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,13 +24,14 @@ public class GoodsController {
 
     @Autowired
     CatalogRepository catalogRepository;
+    @Autowired
+    CatalogNodesRepository catalogNodesRepository;
 
-    @PostMapping(value = "/update", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(value = "/updateCatalogs", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity updateCatalogs(@RequestBody ArrayNode catalogList){
 
         StatusLoad statusLoad = new StatusLoad();
         statusLoad.setStatus(true);
-        statusLoad.setError("");
 
         catalogList.forEach(jsonNode -> {
             String id1c = jsonNode.get("id1c").textValue().trim();
@@ -63,6 +66,53 @@ public class GoodsController {
 
             if (modify || delete){
                 statusLoad.addLoading(id1c);
+            }
+
+        });
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
+    }
+
+    @PostMapping(value = "/updateNodes", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity updateNodes(@RequestBody ArrayNode nodesList){
+
+        StatusLoad statusLoad = new StatusLoad();
+        statusLoad.setStatus(true);
+
+        nodesList.forEach(jsonNode -> {
+            int id = jsonNode.get("id").intValue();
+
+            CatalogNodes node = catalogNodesRepository.findById(id);
+            int deleted = jsonNode.get("deleted").intValue();
+            boolean modify = false;
+            boolean delete = false;
+
+            if (node == null && deleted == 0){
+                node = new CatalogNodes();
+                node.setId(id);
+                node.setId1c(jsonNode.get("id1c").textValue().trim());
+                modify = true;
+            } else if (node != null && deleted == 1) {
+                catalogNodesRepository.delete(node);
+                delete = true;
+            }
+
+            if (!delete){
+                node.setVersion(jsonNode.get("version").intValue());
+                node.setName(jsonNode.get("name").textValue());
+                node.setSorting(jsonNode.get("sorting").intValue());
+                node.setParent(catalogNodesRepository.findById(jsonNode.get("parent").intValue()));
+                node.setCatalog(catalogRepository.findById1c(jsonNode.get("catalog").textValue()));
+
+                String image = jsonNode.get("image").textValue();
+                node.setImagePath(FileUploader.safeImage(image, node.getName(), "jpg","nodes"));
+
+                catalogNodesRepository.save(node);
+                modify = true;
+            }
+
+            if (modify || delete){
+                statusLoad.addLoading(node.getId1c());
             }
 
         });

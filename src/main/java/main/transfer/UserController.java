@@ -51,7 +51,6 @@ public class UserController {
     public ResponseEntity loadUsers(@RequestBody ArrayNode userList){
         StatusLoad statusLoadUsers = new StatusLoad();
         statusLoadUsers.setStatus(true);
-        statusLoadUsers.setError("");
 
         UsersReaper usersReaper = new UsersReaper(phonesRepository, postAdressRepository);
 

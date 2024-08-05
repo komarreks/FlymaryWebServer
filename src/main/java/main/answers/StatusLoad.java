@@ -10,10 +10,14 @@ import java.util.List;
 @Setter
 public class StatusLoad {
     private boolean status;
-    private String error;
+    private List<String> errors = new ArrayList<>();
     private List<String> loaded = new ArrayList<>();
 
     public void addLoading(String id1c){
         loaded.add(id1c);
+    }
+
+    public void addError(String error){
+        errors.add(error);
     }
 }
