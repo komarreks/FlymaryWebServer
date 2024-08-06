@@ -10,21 +10,25 @@ import main.model.goods.Product;
 @Setter
 @Entity
 @NoArgsConstructor
-public class GoodPropertyes {
+public class GoodPropertyValue {
     @Id
     @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
-    private String name;
+    @ManyToOne
+    @JoinColumn(name = "property_id")
+    private Property property;
 
     private String value;
 
-    public GoodPropertyes(String name, String value) {
-        this.name = name;
+    public GoodPropertyValue(Product product, Property property, String value) {
+        this.product = product;
+        this.property = property;
         this.value = value;
     }
 }

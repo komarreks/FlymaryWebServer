@@ -6,4 +6,6 @@ public interface PropertyReposytory extends CrudRepository<Property, Long> {
 
     Property findById1c(String id1c);
 
+    Property findByName(String name);
+
 }

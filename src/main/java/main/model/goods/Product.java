@@ -3,7 +3,7 @@ package main.model.goods;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import main.model.propertyes.GoodPropertyes;
+import main.model.propertyes.GoodPropertyValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +14,7 @@ import java.util.List;
 public class Product {
     @Id
     @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private String id1c;
@@ -22,14 +23,14 @@ public class Product {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "product_id")
-    private List<GoodPropertyes> propertyes;
+    private List<GoodPropertyValue> propertyes;
 
     public void clearPropertyes(){
         if (propertyes == null) propertyes = new ArrayList<>();
         propertyes.clear();
     }
 
-    public void addProperty(GoodPropertyes property){
+    public void addProperty(GoodPropertyValue property){
         propertyes.add(property);
     }
 }

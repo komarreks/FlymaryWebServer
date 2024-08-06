@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.mysql.cj.xdevapi.JsonArray;
 import main.answers.StatusLoad;
 import main.fileTransfer.FileUploader;
 import main.model.catalog.Catalog;
@@ -15,9 +13,10 @@ import main.model.catalog.CatalogNodesRepository;
 import main.model.catalog.CatalogRepository;
 import main.model.goods.Product;
 import main.model.goods.ProductReposytory;
-import main.model.propertyes.GoodPropertyes;
+import main.model.propertyes.GoodPropertyValue;
 import main.model.propertyes.Property;
 import main.model.propertyes.PropertyReposytory;
+import main.model.propertyes.PropertyValueReaper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -41,6 +40,8 @@ public class GoodsController {
     PropertyReposytory propertyReposytory;
     @Autowired
     ProductReposytory productReposytory;
+    @Autowired
+    PropertyValueReaper propertyValueReaper;
 
     @PostMapping(value = "/updateCatalogs", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity updateCatalogs(@RequestBody ArrayNode catalogList){
@@ -195,8 +196,7 @@ public class GoodsController {
             Set<Map.Entry<String, JsonNode>> set =  jsonNode.get("propertyes").properties();
 
             for(Map.Entry<String, JsonNode> key: set){
-                GoodPropertyes newProperty = new GoodPropertyes(key.getKey(), key.getValue().textValue());
-                newProperty.setProduct(product);
+                GoodPropertyValue newProperty = propertyValueReaper.findPropertyValue(product, key.getKey(), key.getValue().asText());
 
                 product.addProperty(newProperty);
             }
