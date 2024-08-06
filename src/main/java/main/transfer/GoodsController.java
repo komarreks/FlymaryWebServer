@@ -1,9 +1,11 @@
 package main.transfer;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mysql.cj.xdevapi.JsonArray;
 import main.answers.StatusLoad;
 import main.fileTransfer.FileUploader;
@@ -11,6 +13,9 @@ import main.model.catalog.Catalog;
 import main.model.catalog.CatalogNodes;
 import main.model.catalog.CatalogNodesRepository;
 import main.model.catalog.CatalogRepository;
+import main.model.goods.Product;
+import main.model.goods.ProductReposytory;
+import main.model.propertyes.GoodPropertyes;
 import main.model.propertyes.Property;
 import main.model.propertyes.PropertyReposytory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/goods")
@@ -34,6 +39,8 @@ public class GoodsController {
     CatalogNodesRepository catalogNodesRepository;
     @Autowired
     PropertyReposytory propertyReposytory;
+    @Autowired
+    ProductReposytory productReposytory;
 
     @PostMapping(value = "/updateCatalogs", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity updateCatalogs(@RequestBody ArrayNode catalogList){
@@ -159,6 +166,42 @@ public class GoodsController {
             property.setName(jsonNode.get("name").textValue());
 
             propertyReposytory.save(property);
+
+            statusLoad.addLoading(id1c);
+        });
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
+    }
+
+    @PostMapping(value = "updateGoods", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity updateGoods(@RequestBody ArrayNode goodsList){
+        StatusLoad statusLoad = new StatusLoad();
+        statusLoad.setStatus(true);
+
+        goodsList.forEach(jsonNode -> {
+            String id1c = jsonNode.get("id1c").textValue().trim();
+
+            Product product = productReposytory.findById1c(id1c);
+
+            if (product == null){
+                product = new Product();
+                product.setId1c(id1c);
+            }
+
+            product.setName(jsonNode.get("name").textValue());
+
+            product.clearPropertyes();
+
+            Set<Map.Entry<String, JsonNode>> set =  jsonNode.get("propertyes").properties();
+
+            for(Map.Entry<String, JsonNode> key: set){
+                GoodPropertyes newProperty = new GoodPropertyes(key.getKey(), key.getValue().textValue());
+                newProperty.setProduct(product);
+
+                product.addProperty(newProperty);
+            }
+
+            productReposytory.save(product);
 
             statusLoad.addLoading(id1c);
         });
