@@ -6,4 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 public interface GoodPropertyValueRepository extends CrudRepository<GoodPropertyValue, Integer> {
 
     GoodPropertyValue findByProductAndProperty(Product product, Property property);
+
 }

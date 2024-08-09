@@ -1,6 +1,7 @@
 package main.model.propertyes;
 
 import main.model.goods.Product;
+import main.model.goods.characs.Charac;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,8 @@ public class PropertyValueReaper {
     GoodPropertyValueRepository goodPropertyValueRepository;
     @Autowired
     PropertyReposytory propertyReposytory;
+    @Autowired
+    CharacPropertyValueRepository characPropertyValueRepository;
 
     public GoodPropertyValue findPropertyValue(Product product, String name, String value){
         Property property = propertyReposytory.findByName(name);
@@ -30,5 +33,25 @@ public class PropertyValueReaper {
         }
 
         return goodPropertyValue;
+    }
+
+    public CharacPropertyValue findPropertyValue(Charac charac, String name, String value){
+        Property property = propertyReposytory.findByName(name);
+
+        CharacPropertyValue characPropertyValue = null;
+
+        if (!(charac.getId() == null)){
+            characPropertyValue = characPropertyValueRepository.findByCharacAndProperty(charac, property);
+        }
+
+        if (characPropertyValue == null){
+            characPropertyValue = new CharacPropertyValue(charac, property, value);
+        }
+
+        if (!characPropertyValue.getValue().equals(value)){
+            characPropertyValue.setValue(value);
+        }
+
+        return characPropertyValue;
     }
 }

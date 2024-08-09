@@ -13,10 +13,9 @@ import main.model.catalog.CatalogNodesRepository;
 import main.model.catalog.CatalogRepository;
 import main.model.goods.Product;
 import main.model.goods.ProductReposytory;
-import main.model.propertyes.GoodPropertyValue;
-import main.model.propertyes.Property;
-import main.model.propertyes.PropertyReposytory;
-import main.model.propertyes.PropertyValueReaper;
+import main.model.goods.characs.Charac;
+import main.model.goods.characs.CharacRepository;
+import main.model.propertyes.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,6 +41,8 @@ public class GoodsController {
     ProductReposytory productReposytory;
     @Autowired
     PropertyValueReaper propertyValueReaper;
+    @Autowired
+    CharacRepository characRepository;
 
     @PostMapping(value = "/updateCatalogs", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity updateCatalogs(@RequestBody ArrayNode catalogList){
@@ -202,6 +203,43 @@ public class GoodsController {
             }
 
             productReposytory.save(product);
+
+            statusLoad.addLoading(id1c);
+        });
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
+    }
+
+    @PostMapping(value = "updateCharacs", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity updateCharacs(@RequestBody ArrayNode characsList){
+        StatusLoad statusLoad = new StatusLoad();
+        statusLoad.setStatus(true);
+
+        characsList.forEach(jsonNode -> {
+            String id1c = jsonNode.get("id1c").textValue().trim();
+            String productId1c = jsonNode.get("productId1c").textValue().trim();
+
+            Charac charac = characRepository.findById1c(id1c);
+
+            if (charac == null){
+                charac = new Charac();
+                charac.setId1c(id1c);
+                charac.setProduct(productReposytory.findById1c(productId1c));
+            }
+
+            charac.setName(jsonNode.get("name").textValue());
+
+            charac.clearPropertyes();
+
+            Set<Map.Entry<String, JsonNode>> set =  jsonNode.get("propertyes").properties();
+
+            for(Map.Entry<String, JsonNode> key: set){
+                CharacPropertyValue newProperty = propertyValueReaper.findPropertyValue(charac, key.getKey(), key.getValue().asText());
+
+                charac.addProperty(newProperty);
+            }
+
+            characRepository.save(charac);
 
             statusLoad.addLoading(id1c);
         });
