@@ -15,6 +15,8 @@ import main.model.goods.Product;
 import main.model.goods.ProductReposytory;
 import main.model.goods.characs.Charac;
 import main.model.goods.characs.CharacRepository;
+import main.model.images.Image;
+import main.model.images.ImageRepository;
 import main.model.propertyes.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,6 +45,8 @@ public class GoodsController {
     PropertyValueReaper propertyValueReaper;
     @Autowired
     CharacRepository characRepository;
+    @Autowired
+    ImageRepository imageRepository;
 
     @PostMapping(value = "/updateCatalogs", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity updateCatalogs(@RequestBody ArrayNode catalogList){
@@ -240,6 +244,37 @@ public class GoodsController {
             }
 
             characRepository.save(charac);
+
+            statusLoad.addLoading(id1c);
+        });
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
+    }
+
+    @PostMapping(value = "updateImages", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity updateImages(@RequestBody ArrayNode imageList){
+        StatusLoad statusLoad = new StatusLoad();
+        statusLoad.setStatus(true);
+
+        imageList.forEach(jsonNode -> {
+            String id1c = jsonNode.get("id1c").textValue().trim();
+            int deleted = jsonNode.get("deleted").intValue();
+
+            Image image = imageRepository.findById1c(id1c);
+
+            if (image == null && deleted == 0){
+                image = new Image();
+                image.setId1c(id1c);
+                image.setProduct(productReposytory.findById1c(jsonNode.get("product_id1c").textValue()));
+                image.setCharac(characRepository.findById1c(jsonNode.get("charac_id1c").textValue()));
+                image.setName(jsonNode.get("name").textValue());
+
+                String imageBody = jsonNode.get("image").textValue();
+                image.setPath(FileUploader.safeImage(imageBody, image.getName(), "jpg","goods_img"));
+                imageRepository.save(image);
+            } else if (image != null && deleted == 1) {
+                imageRepository.delete(image);
+            }
 
             statusLoad.addLoading(id1c);
         });

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import main.model.goods.Product;
+import main.model.images.Image;
 import main.model.propertyes.CharacPropertyValue;
 import main.model.propertyes.GoodPropertyValue;
 
@@ -30,6 +31,10 @@ public class Charac{
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "charac_id")
     private List<CharacPropertyValue> propertyes;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "charac_id")
+    private List<Image> images;
 
     public void clearPropertyes() {
         if (propertyes == null) propertyes = new ArrayList<>();
