@@ -88,10 +88,49 @@ public class OrdersController {
         Order order = new Order();
         order.setDate(LocalDateTime.now());
         order.setStatus(OrderStatus.OPEN);
+        order.clearTable();
 
         orderRepository.save(order);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
+    }
+
+    @PostMapping(value = "/addLine", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity addLine(@RequestBody JsonNode jsLine){
+        class Answer{
+            String error;
+
+            public Answer(String error){
+                this.error = error;
+            }
+        }
+
+        Order order = orderRepository.findById(jsLine.get("id").longValue());
+
+        if (order == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Answer("not found order"));}
+
+        Product product = productReposytory.findById(jsLine.get("productId").longValue());
+
+        if (product == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Answer("not found product"));}
+
+        long characId = jsLine.get("characId").longValue();
+
+        Charac charac = null;
+
+        if (characId > 0){
+            charac = characRepository.findById(characId);
+
+            if (charac == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Answer("not found charac"));}
+        }
+
+        int count = jsLine.get("count").intValue();
+        double price = jsLine.get("price").doubleValue();
+
+        order.addLine(product, charac, count, price);
+
+        orderRepository.save(order);
+
+        return new ResponseEntity(HttpStatus.OK);
     }
 
 
