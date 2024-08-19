@@ -67,4 +67,13 @@ public class Order {
             number++;
         }
     }
+
+    public void changeCount(int lineNumber, int newCount){
+        for (OrderLine line: lines) {
+            if (line.getLineNumber() == lineNumber){
+                line.setCount(newCount);
+                line.setSum(line.getCount() * line.getPrice());
+            }
+        }
+    }
 }

@@ -3,6 +3,7 @@ package main.transfer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.mysql.cj.xdevapi.JsonArray;
+import main.answers.SimpleAnswer;
 import main.answers.StatusLoad;
 import main.model.goods.Product;
 import main.model.goods.ProductReposytory;
@@ -97,21 +98,13 @@ public class OrdersController {
 
     @PostMapping(value = "/addLine", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity addLine(@RequestBody JsonNode jsLine){
-        class Answer{
-            String error;
-
-            public Answer(String error){
-                this.error = error;
-            }
-        }
-
         Order order = orderRepository.findById(jsLine.get("id").longValue());
 
-        if (order == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Answer("not found order"));}
+        if (order == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleAnswer("not found order"));}
 
         Product product = productReposytory.findById(jsLine.get("productId").longValue());
 
-        if (product == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Answer("not found product"));}
+        if (product == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleAnswer("not found product"));}
 
         long characId = jsLine.get("characId").longValue();
 
@@ -120,7 +113,7 @@ public class OrdersController {
         if (characId > 0){
             charac = characRepository.findById(characId);
 
-            if (charac == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Answer("not found charac"));}
+            if (charac == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleAnswer("not found charac"));}
         }
 
         int count = jsLine.get("count").intValue();
@@ -133,5 +126,21 @@ public class OrdersController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    @PostMapping(value = "/changeCount", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity changeCount(@RequestBody JsonNode jsLine){
+        long id = jsLine.get("id").longValue();
 
+        Order order = orderRepository.findById(id);
+
+        if (order == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleAnswer("not found order"));}
+
+        int lineNumber = jsLine.get("lineNumber").intValue();
+        int newCount = jsLine.get("newCount").intValue();
+
+        order.changeCount(lineNumber, newCount);
+
+        orderRepository.save(order);
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
 }
