@@ -3,6 +3,10 @@ package main.transfer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.mysql.cj.xdevapi.JsonArray;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.Data;
 import main.answers.SimpleAnswer;
 import main.answers.StatusLoad;
 import main.model.goods.Product;
@@ -16,14 +20,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/orders")
 public class OrdersController {
     @Autowired
@@ -34,6 +37,8 @@ public class OrdersController {
     ProductReposytory productReposytory;
     @Autowired
     CharacRepository characRepository;
+    @Autowired
+    OrderLineRepository orderLineRepository;
 
     @PostMapping(value = "/updateOrders", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public void updateOrders(@RequestBody ArrayNode ordersList){
@@ -140,6 +145,24 @@ public class OrdersController {
         order.changeCount(lineNumber, newCount);
 
         orderRepository.save(order);
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/deleteLine")
+    public ResponseEntity deleteLine(@RequestBody JsonNode jsLine){
+        long id = jsLine.get("id").longValue();
+
+        Order order = orderRepository.findById(id);
+
+        if (order == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleAnswer("not found order"));}
+
+        order.setOrderLineRepository(orderLineRepository);
+        order.setOrderRepository(orderRepository);
+        order.deleteLine(jsLine.get("lineNumber").intValue());
+
+        orderRepository.save(order);
+        orderLineRepository.deleteAllByDeleted();
 
         return new ResponseEntity(HttpStatus.OK);
     }

@@ -9,22 +9,17 @@ import main.model.goods.characs.Charac;
 @Getter
 @Setter
 @Entity
-@IdClass(OrderLinePK.class)
 @Table(name = "order_lines")
 public class OrderLine {
 
-    @Id
-    private int lineNumber;
-    @Id
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
+    @EmbeddedId
+    OrderLinePK orderLinePK;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "charac_id")
     private Charac charac;
 
@@ -33,4 +28,6 @@ public class OrderLine {
     private double price;
 
     private double sum;
+
+    private int deleted;
 }

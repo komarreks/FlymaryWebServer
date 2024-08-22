@@ -9,16 +9,22 @@ import main.model.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "orders")
 public class Order {
-    @Autowired
     @Transient
+    @Autowired
     OrderLineRepository orderLineRepository;
+    @Transient
+    @Autowired
+    OrderRepository orderRepository;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -37,18 +43,17 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id")
     private List<OrderLine> lines;
 
     public void clearTable(){
-        orderLineRepository.deleteAll(lines);
+        lines = new ArrayList<>();
     }
 
     public void addLine(Product product, Charac charac, int count, double price){
         OrderLine orderLine = new OrderLine();
-        orderLine.setLineNumber(lines.size() + 1);
-        orderLine.setOrder(this);
+        orderLine.setOrderLinePK(new OrderLinePK(lines.size() + 1, this));
         orderLine.setProduct(product);
         orderLine.setCharac(charac);
         orderLine.setCount(count);
@@ -58,19 +63,35 @@ public class Order {
         lines.add(orderLine);
     }
 
-    public void deleteLine(int number){
-        orderLineRepository.delete(lines.get(number - 1));
+    public List<OrderLine> getLines(){
+        return lines;
+    }
 
-        number = 1;
-        for (OrderLine line: lines) {
-            line.setLineNumber(number);
-            number++;
-        }
+    public void deleteLine(int number){
+        List<OrderLine> buffer = new ArrayList<>();
+        buffer.addAll(lines);
+
+        AtomicInteger numberLine = new AtomicInteger(0);
+        buffer = buffer.stream()
+                .filter(line -> line.getOrderLinePK().getLineNumber() != number).toList();
+
+        buffer.forEach(buferLine -> {
+            OrderLine ol = lines.get(numberLine.get());
+            ol.setProduct(buferLine.getProduct());
+            ol.setCharac(buferLine.getCharac());
+            ol.setCount(buferLine.getCount());
+            ol.setPrice(buferLine.getPrice());
+            ol.setSum(buferLine.getSum());
+            numberLine.incrementAndGet();
+        });
+
+        OrderLine deletedLine = lines.get(lines.size() -1);
+        deletedLine.setDeleted(1);
     }
 
     public void changeCount(int lineNumber, int newCount){
         for (OrderLine line: lines) {
-            if (line.getLineNumber() == lineNumber){
+            if (line.getOrderLinePK().getLineNumber() == lineNumber){
                 line.setCount(newCount);
                 line.setSum(line.getCount() * line.getPrice());
             }

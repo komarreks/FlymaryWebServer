@@ -1,5 +1,6 @@
 package main.model.orders;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -16,7 +17,7 @@ import java.io.Serializable;
 public class OrderLinePK implements Serializable {
     private int lineNumber;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "order_id")
     private Order order;
 

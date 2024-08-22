@@ -1,12 +1,11 @@
 package main.model.orders;
 
-import org.aspectj.weaver.ast.Or;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
-public interface OrderRepository extends CrudRepository<Order, Long> {
+public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Order findById1c(String id1c);
 
     Order findById(long id);
-
 }
