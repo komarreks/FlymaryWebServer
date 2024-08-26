@@ -1,12 +1,9 @@
 package main.transfer;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.mysql.cj.xdevapi.JsonArray;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.Data;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import main.answers.SimpleAnswer;
 import main.answers.StatusLoad;
 import main.model.goods.Product;
@@ -19,11 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -165,5 +160,42 @@ public class OrdersController {
         orderLineRepository.deleteAllByDeleted();
 
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @GetMapping(value = "getOpenOrders")
+    public ResponseEntity getOpenOrders(){
+        List<Order> openedOrders = orderRepository.findByStatus(OrderStatus.OPEN);
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        ArrayNode jsOrders = mapper.createArrayNode();
+
+        for (Order order: openedOrders) {
+
+            String userId = order.getUser() == null ? "":order.getUser().getId1c();
+
+            ObjectNode jsOrder = mapper.createObjectNode();
+            jsOrder.put("id", order.getId());
+            jsOrder.put("date", order.getDate().toString());
+            jsOrder.put("user", userId);
+
+            List<OrderLine> lines = order.getLines();
+            ArrayNode jsLines = mapper.createArrayNode();
+
+            for (OrderLine ol: lines) {
+                ObjectNode jsLine = mapper.createObjectNode();
+                jsLine.put("productId", ol.getProduct().getId1c());
+                jsLine.put("characId", ol.getCharac().getId1c());
+                jsLine.put("count", ol.getCount());
+                jsLine.put("price", ol.getPrice());
+                jsLine.put("sum", ol.getSum());
+                jsLines.add(jsLine);
+            }
+
+            jsOrder.put("lines", jsLines);
+            jsOrders.add(jsOrder);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(jsOrders);
     }
 }
