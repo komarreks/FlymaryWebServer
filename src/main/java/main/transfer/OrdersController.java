@@ -172,6 +172,22 @@ public class OrdersController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    @DeleteMapping(value = "/deleteOrder")
+    public ResponseEntity deleteOrder(@RequestBody JsonNode jsLine){
+        Order order = orderRepository.findById(jsLine.get("id").longValue());
+
+        if (order == null) return new ResponseEntity(HttpStatus.NOT_FOUND);
+
+        if (order.getId1c() != null){
+            if (!order.getId1c().isEmpty()) return new ResponseEntity("order follow to 1c, sorry", HttpStatus.CONFLICT);
+        }
+
+        orderLineRepository.deleteAllByOrder(order);
+        orderRepository.delete(order);
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
     @GetMapping(value = "getOpenOrders")
     public ResponseEntity getOpenOrders(){
         List<Order> openedOrders = orderRepository.findByStatus(OrderStatus.OPEN);
