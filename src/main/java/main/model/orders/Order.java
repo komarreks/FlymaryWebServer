@@ -1,5 +1,6 @@
 package main.model.orders;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +27,7 @@ public class Order {
     OrderRepository orderRepository;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -45,6 +46,15 @@ public class Order {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id")
     private List<OrderLine> lines;
+
+    public static Order createNewOrder(){
+        Order order = new Order();
+        order.setDate(LocalDateTime.now());
+        order.setStatus(OrderStatus.OPEN);
+        order.clearTable();
+
+        return order;
+    }
 
     public void clearTable(){
         lines = new ArrayList<>();

@@ -11,7 +11,7 @@ import main.model.user.User;
 @Table(name = "phones")
 public class Phone {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     int id;
     @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "user_id")

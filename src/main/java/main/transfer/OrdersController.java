@@ -1,5 +1,6 @@
 package main.transfer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -18,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -86,14 +88,22 @@ public class OrdersController {
 
     @GetMapping(value = "/createOrder")
     public ResponseEntity createOrder(){
-        Order order = new Order();
-        order.setDate(LocalDateTime.now());
-        order.setStatus(OrderStatus.OPEN);
-        order.clearTable();
+        Order order = Order.createNewOrder();
 
         orderRepository.save(order);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(order);
+        return ResponseEntity.status(HttpStatus.CREATED).body(order.getId());
+    }
+
+    @GetMapping(value = "/createOrderWithAutorize")
+    public ResponseEntity createOrder(@RequestBody JsonNode jsUserId){
+        Order order = Order.createNewOrder();
+
+        order.setUser(userRepository.findById(jsUserId.get("userId").intValue()).get());
+
+        orderRepository.save(order);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(order.getId());
     }
 
     @PostMapping(value = "/addLine", consumes = {MediaType.APPLICATION_JSON_VALUE})
@@ -196,6 +206,9 @@ public class OrdersController {
             jsOrders.add(jsOrder);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(jsOrders);
+        ObjectNode response = mapper.createObjectNode();
+        response.put("response", jsOrders);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
     private String id1c;
     private String name;

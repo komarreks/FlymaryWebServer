@@ -11,7 +11,7 @@ import main.model.user.User;
 @Table(name = "post_aderesses")
 public class PostAdress {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     int id;
 
     private String postAdress;
