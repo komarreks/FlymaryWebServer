@@ -1,17 +1,16 @@
 package main.model.orders;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import main.model.goods.Product;
 import main.model.goods.characs.Charac;
 import main.model.user.User;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Getter
@@ -19,19 +18,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Entity
 @Table(name = "orders")
 public class Order {
-    @Transient
-    @Autowired
-    OrderLineRepository orderLineRepository;
-    @Transient
-    @Autowired
-    OrderRepository orderRepository;
-
+    //region FIELDS
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false)
-    private Long id;
+    private UUID id;
 
     private LocalDateTime date;
+    private LocalDateTime dateOpenOrder;
 
     @Enumerated
     @Column(name = "status")
@@ -46,9 +39,12 @@ public class Order {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id")
     private List<OrderLine> lines;
+    //endregion
 
+    //region METHODS
     public static Order createNewOrder(){
         Order order = new Order();
+        order.setId(UUID.randomUUID());
         order.setDate(LocalDateTime.now());
         order.setStatus(OrderStatus.OPEN);
         order.clearTable();
@@ -106,4 +102,5 @@ public class Order {
             }
         }
     }
+    //endregion
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import main.answers.LoadLine;
 import main.answers.StatusLoad;
 import main.fileTransfer.FileUploader;
 import main.model.catalog.Catalog;
@@ -52,56 +53,49 @@ public class GoodsController {
     public ResponseEntity updateCatalogs(@RequestBody ArrayNode catalogList){
 
         StatusLoad statusLoad = new StatusLoad();
-        statusLoad.setStatus(true);
 
         catalogList.forEach(jsonNode -> {
             String id1c = jsonNode.get("id1c").textValue().trim();
 
+            LoadLine loadLine = new LoadLine(id1c);
+
             Catalog catalog = catalogRepository.findById1c(id1c);
-            int deleted = jsonNode.get("deleted").intValue();
-            boolean modify = false;
-            boolean delete = false;
 
-            if (catalog == null && deleted == 0){
+            if (catalog == null){
                 catalog = new Catalog();
+                catalog.setId(UUID.randomUUID());
                 catalog.setId1c(id1c);
-                modify = true;
-            } else if (catalog != null && deleted == 1) {
-                catalogRepository.delete(catalog);
-                delete = true;
+                loadLine.setStatus("Загружен");
             }
 
-            if (!delete){
-                catalog.setVersion(jsonNode.get("version").asInt());
-                catalog.setName(jsonNode.get("name").textValue());
-                catalog.setTextButton(jsonNode.get("textButton").textValue());
+            catalog.setDeleted(jsonNode.get("deleted").intValue());
+            catalog.setVersion(jsonNode.get("version").asInt());
+            catalog.setName(jsonNode.get("name").textValue());
+            catalog.setTextButton(jsonNode.get("textButton").textValue());
 
-                String image = jsonNode.get("image").textValue();
-                catalog.setImagePath(FileUploader.safeImage(image, catalog.getName(), "jpg","catalogs"));
+            String image = jsonNode.get("image").textValue();
+            catalog.setImagePath(FileUploader.safeImage(image, catalog.getName(), "jpg","catalogs"));
 
-                ObjectReader reader = new ObjectMapper().readerFor(new TypeReference<List<String>>() {
-                });
+            ObjectReader reader = new ObjectMapper().readerFor(new TypeReference<List<String>>() {
+            });
 
-                try {
-                    catalog.loadGoodPropertyes(reader.readValue(jsonNode.get("goodsPropertyes")));
-                }catch (Exception e){
-
-                }
-
-                try {
-                    catalog.loadcharacPropertyes(reader.readValue(jsonNode.get("characPropertyes")));
-                }catch (Exception e){
-
-                }
-
-                catalogRepository.save(catalog);
-                modify = true;
+            StringBuilder sbStatusAdd = new StringBuilder();
+            try {
+                catalog.loadGoodPropertyes(reader.readValue(jsonNode.get("goodsPropertyes")));
+            }catch (Exception e){
+                sbStatusAdd.append("; ошибка загрузки списка свойств товаров");
             }
 
-            if (modify || delete){
-                statusLoad.addLoading(id1c);
+            try {
+                catalog.loadcharacPropertyes(reader.readValue(jsonNode.get("characPropertyes")));
+            }catch (Exception e){
+                sbStatusAdd.append("; ошибка загрузки списка свойств характеристик");
             }
 
+            catalogRepository.save(catalog);
+            if (loadLine.getStatus() == null) loadLine.setStatus("Обновлен" + sbStatusAdd.toString());
+
+            statusLoad.addLog(loadLine);
         });
 
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
@@ -111,44 +105,36 @@ public class GoodsController {
     public ResponseEntity updateNodes(@RequestBody ArrayNode nodesList){
 
         StatusLoad statusLoad = new StatusLoad();
-        statusLoad.setStatus(true);
 
         nodesList.forEach(jsonNode -> {
             int id = jsonNode.get("id").intValue();
 
-            CatalogNodes node = catalogNodesRepository.findById(id);
-            int deleted = jsonNode.get("deleted").intValue();
-            boolean modify = false;
-            boolean delete = false;
+            LoadLine loadLine = new LoadLine(jsonNode.get("id1c").textValue().trim());
 
-            if (node == null && deleted == 0){
+            CatalogNodes node = catalogNodesRepository.findById(id);
+
+            if (node == null){
                 node = new CatalogNodes();
                 node.setId(id);
                 node.setId1c(jsonNode.get("id1c").textValue().trim());
-                modify = true;
-            } else if (node != null && deleted == 1) {
-                catalogNodesRepository.delete(node);
-                delete = true;
+                loadLine.setStatus("Загружен");
             }
 
-            if (!delete){
-                node.setVersion(jsonNode.get("version").intValue());
-                node.setName(jsonNode.get("name").textValue());
-                node.setSorting(jsonNode.get("sorting").intValue());
-                node.setParent(catalogNodesRepository.findById(jsonNode.get("parent").intValue()));
-                node.setCatalog(catalogRepository.findById1c(jsonNode.get("catalog").textValue()));
+            node.setVersion(jsonNode.get("version").intValue());
+            node.setName(jsonNode.get("name").textValue());
+            node.setSorting(jsonNode.get("sorting").intValue());
+            node.setParent(catalogNodesRepository.findById(jsonNode.get("parent").intValue()));
+            node.setCatalog(catalogRepository.findById1c(jsonNode.get("catalog").textValue()));
+            node.setDeleted(jsonNode.get("deleted").intValue());
 
-                String image = jsonNode.get("image").textValue();
-                node.setImagePath(FileUploader.safeImage(image, node.getName(), "jpg","nodes"));
+            String image = jsonNode.get("image").textValue();
+            node.setImagePath(FileUploader.safeImage(image, node.getName(), "jpg","nodes"));
 
-                catalogNodesRepository.save(node);
-                modify = true;
-            }
+            catalogNodesRepository.save(node);
 
-            if (modify || delete){
-                statusLoad.addLoading(node.getId1c());
-            }
+            if (loadLine.getStatus() == null) loadLine.setStatus("Обновлен");
 
+            statusLoad.addLog(loadLine);
         });
 
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
@@ -157,23 +143,25 @@ public class GoodsController {
     @PostMapping(value = "updatePropertyes", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity updatePropertyes(@RequestBody ArrayNode propertyList){
         StatusLoad statusLoad = new StatusLoad();
-        statusLoad.setStatus(true);
 
         propertyList.forEach(jsonNode -> {
             String id1c = jsonNode.get("id1c").textValue().trim();
-
+            LoadLine loadLine = new LoadLine(id1c);
             Property property = propertyReposytory.findById1c(id1c);
 
             if (property == null){
                 property = new Property();
+                property.setId(UUID.randomUUID());
                 property.setId1c(id1c);
+                loadLine.setStatus("Загружен");
             }
 
             property.setName(jsonNode.get("name").textValue());
 
             propertyReposytory.save(property);
 
-            statusLoad.addLoading(id1c);
+            if (loadLine.getStatus() != null) loadLine.setStatus("Обновлен");
+            statusLoad.addLog(loadLine);
         });
 
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
@@ -182,16 +170,19 @@ public class GoodsController {
     @PostMapping(value = "updateGoods", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity updateGoods(@RequestBody ArrayNode goodsList){
         StatusLoad statusLoad = new StatusLoad();
-        statusLoad.setStatus(true);
 
         goodsList.forEach(jsonNode -> {
             String id1c = jsonNode.get("id1c").textValue().trim();
+
+            LoadLine loadLine = new LoadLine(id1c);
 
             Product product = productReposytory.findById1c(id1c);
 
             if (product == null){
                 product = new Product();
                 product.setId1c(id1c);
+                product.setId(UUID.randomUUID());
+                loadLine.setStatus("Загружен");
             }
 
             product.setName(jsonNode.get("name").textValue());
@@ -208,7 +199,8 @@ public class GoodsController {
 
             productReposytory.save(product);
 
-            statusLoad.addLoading(id1c);
+            if (loadLine.getStatus() == null) loadLine.setStatus("Обновлен");
+            statusLoad.addLog(loadLine);
         });
 
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
@@ -217,18 +209,21 @@ public class GoodsController {
     @PostMapping(value = "updateCharacs", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity updateCharacs(@RequestBody ArrayNode characsList){
         StatusLoad statusLoad = new StatusLoad();
-        statusLoad.setStatus(true);
 
         characsList.forEach(jsonNode -> {
             String id1c = jsonNode.get("id1c").textValue().trim();
             String productId1c = jsonNode.get("productId1c").textValue().trim();
+
+            LoadLine loadLine = new LoadLine(id1c);
 
             Charac charac = characRepository.findById1c(id1c);
 
             if (charac == null){
                 charac = new Charac();
                 charac.setId1c(id1c);
+                charac.setId(UUID.randomUUID());
                 charac.setProduct(productReposytory.findById1c(productId1c));
+                loadLine.setStatus("Загружен");
             }
 
             charac.setName(jsonNode.get("name").textValue());
@@ -245,7 +240,8 @@ public class GoodsController {
 
             characRepository.save(charac);
 
-            statusLoad.addLoading(id1c);
+            if (loadLine.getStatus() == null) loadLine.setStatus("Обновлен");
+            statusLoad.addLog(loadLine);
         });
 
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
@@ -254,17 +250,18 @@ public class GoodsController {
     @PostMapping(value = "updateImages", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity updateImages(@RequestBody ArrayNode imageList){
         StatusLoad statusLoad = new StatusLoad();
-        statusLoad.setStatus(true);
 
         imageList.forEach(jsonNode -> {
             String id1c = jsonNode.get("id1c").textValue().trim();
-            int deleted = jsonNode.get("deleted").intValue();
+
+            LoadLine loadLine = new LoadLine(id1c);
 
             Image image = imageRepository.findById1c(id1c);
 
-            if (image == null && deleted == 0){
+            if (image == null){
                 image = new Image();
                 image.setId1c(id1c);
+                image.setId(UUID.randomUUID());
                 image.setProduct(productReposytory.findById1c(jsonNode.get("product_id1c").textValue()));
                 image.setCharac(characRepository.findById1c(jsonNode.get("charac_id1c").textValue()));
                 image.setName(jsonNode.get("name").textValue());
@@ -272,11 +269,13 @@ public class GoodsController {
                 String imageBody = jsonNode.get("image").textValue();
                 image.setPath(FileUploader.safeImage(imageBody, image.getName(), "jpg","goods_img"));
                 imageRepository.save(image);
-            } else if (image != null && deleted == 1) {
-                imageRepository.delete(image);
+                loadLine.setStatus("Загружен");
             }
 
-            statusLoad.addLoading(id1c);
+            image.setDeleted(jsonNode.get("deleted").intValue());
+
+            if (loadLine.getStatus() == null) loadLine.setStatus("");
+            statusLoad.addLog(loadLine);
         });
 
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);

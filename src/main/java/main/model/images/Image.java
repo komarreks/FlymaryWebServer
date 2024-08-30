@@ -6,14 +6,19 @@ import lombok.Setter;
 import main.model.goods.Product;
 import main.model.goods.characs.Charac;
 
+import java.util.UUID;
+
 @Entity
+@Table(name = "images", indexes = {
+        @Index(name = "idx_image_id_product_id", columnList = "id, product_id, charac_id, id1c")
+})
 @Getter
 @Setter
 public class Image {
+    //region FIELDS
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
-    private Long id;
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
@@ -28,4 +33,7 @@ public class Image {
     private String path;
 
     private String name;
+
+    private int deleted;
+    //endregion
 }

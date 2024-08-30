@@ -5,18 +5,20 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "catalogs")
+@Table(name = "catalogs", indexes = {
+        @Index(name = "idx_catalog_id_id1c_unq", columnList = "id, id1c", unique = true)
+})
 public class Catalog {
+    //region FIELDS
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private UUID id;
 
     private String id1c;
 
@@ -28,10 +30,14 @@ public class Catalog {
 
     private int version;
 
+    private int deleted;
+
     private List<String> goodProperty;
 
     private List<String> characProperty;
+    //endregion
 
+    //region METHODS
     public void loadGoodPropertyes(List<String> list){
         if (goodProperty == null){
             goodProperty = new ArrayList<>();
@@ -47,4 +53,5 @@ public class Catalog {
         characProperty.clear();
         characProperty.addAll(list);
     }
+    //endregion
 }

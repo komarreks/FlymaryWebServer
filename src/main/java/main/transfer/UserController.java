@@ -3,6 +3,7 @@ package main.transfer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import main.answers.LoadLine;
 import main.answers.StatusLoad;
 import main.model.user.User;
 import main.model.user.UserRepository;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
@@ -50,60 +52,48 @@ public class UserController {
     @PostMapping(value = "/loadAllUsers", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity loadUsers(@RequestBody ArrayNode userList){
         StatusLoad statusLoadUsers = new StatusLoad();
-        statusLoadUsers.setStatus(true);
-
-        UsersReaper usersReaper = new UsersReaper(phonesRepository, postAdressRepository);
 
         userList.forEach(userNode -> {
             String id1c = userNode.get("id1c").textValue();
-
-            boolean modified = false;
+            LoadLine loadLine = new LoadLine(id1c);
 
             User user = userRepository.findById1c(id1c);
 
-            int deleted = userNode.get("deleted").intValue();
-
-            if (user == null && deleted == 0){
+            if (user == null){
                 user = new User();
+                user.setId(UUID.randomUUID());
                 user.setId1c(id1c);
-
-                modified = true;
-            } else if (user != null && deleted == 1) {
-                userRepository.delete(user);
+                loadLine.setStatus("Загружен");
             }
 
-            if (deleted == 0){
-                String name = userNode.get("name").textValue();
+            user.setName(userNode.get("name").textValue());
+            user.setDeleted(userNode.get("deleted").intValue());
 
-                if (!user.getName().equals(name)){
-                    user.setName(name);
-                    modified = true;
-                }
+            phonesRepository.deleteAll(user.getPhones());
+            postAdressRepository.deleteAll(user.getPostAdresses());
 
-                ArrayNode phonesArrayNode = (ArrayNode) userNode.get("phones");
-                List<String> phonesList = new ArrayList<>();
-                phonesArrayNode.forEach(phoneNode -> {
-                    String phone = phoneNode.asText();
-                    phonesList.add(phone);
-                });
+            user.clearPhonesAndPostAdress();
 
-                modified = usersReaper.phonesAnalysis(user, phonesList);
+            ArrayNode phonesArrayNode = (ArrayNode) userNode.get("phones");
+            List<String> phonesList = new ArrayList<>();
+            phonesArrayNode.forEach(phoneNode -> {
+                String phone = phoneNode.asText();
+                phonesList.add(phone);
+            });
 
-                ArrayNode adressesArrayNode = (ArrayNode) userNode.get("postAdresses");
-                List<String> adressesList = new ArrayList<>();
-                adressesArrayNode.forEach(adressNode -> {
-                    String adress = adressNode.asText();
-                    adressesList.add(adress);
-                });
+            ArrayNode adressesArrayNode = (ArrayNode) userNode.get("postAdresses");
+            List<String> adressesList = new ArrayList<>();
+            adressesArrayNode.forEach(adressNode -> {
+               String adress = adressNode.asText();
+               adressesList.add(adress);
+            });
 
-                modified = usersReaper.postAdressesAnalysis(user, adressesList);
+            user.savePhonesAndPostAdress(phonesList, adressesList);
 
-                if (modified){
-                    userRepository.save(user);
-                }
-            }
+            userRepository.save(user);
+            if (loadLine.getStatus() == null) loadLine.setStatus("Обновлен");
 
-            statusLoadUsers.addLoading(id1c);
+            statusLoadUsers.addLog(loadLine);
         });
 
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoadUsers);

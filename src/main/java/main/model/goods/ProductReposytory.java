@@ -2,9 +2,12 @@ package main.model.goods;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface ProductReposytory extends CrudRepository<Product, Long> {
+import java.util.Optional;
+import java.util.UUID;
+
+public interface ProductReposytory extends CrudRepository<Product, UUID> {
 
     Product findById1c(String id1c);
 
-    Product findById(long id);
+    Optional<Product> findById(UUID id);
 }

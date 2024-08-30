@@ -2,9 +2,12 @@ package main.model.goods.characs;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CharacRepository extends JpaRepository<Charac, Long> {
+import java.util.Optional;
+import java.util.UUID;
+
+public interface CharacRepository extends JpaRepository<Charac, UUID> {
 
     Charac findById1c(String id1c);
 
-    Charac findById(long id);
+    Optional<Charac> findById(UUID id);
 }

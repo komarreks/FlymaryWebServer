@@ -6,19 +6,20 @@ import lombok.Setter;
 import main.model.goods.Product;
 import main.model.images.Image;
 import main.model.propertyes.CharacPropertyValue;
-import main.model.propertyes.GoodPropertyValue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
+@Table(name = "characs")
 public class Charac{
+    //region FIELDS
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
-    private Long id;
+    private UUID id;
 
     @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
@@ -35,7 +36,9 @@ public class Charac{
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "charac_id")
     private List<Image> images;
+    //endregion
 
+    //region METHODS
     public void clearPropertyes() {
         if (propertyes == null) propertyes = new ArrayList<>();
         propertyes.clear();
@@ -44,4 +47,5 @@ public class Charac{
     public void addProperty(CharacPropertyValue newProperty) {
         propertyes.add(newProperty);
     }
+    //endregion
 }

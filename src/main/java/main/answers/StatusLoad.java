@@ -10,26 +10,13 @@ import java.util.List;
 @Getter
 @Setter
 public class StatusLoad {
-    private boolean status;
-    private List<String> errors = new ArrayList<>();
-    private List<String> loaded = new ArrayList<>();
-    private List<LocalDateTime> dates = new ArrayList<>();
+   List<LoadLine> log;
 
-    public void addLoading(String id1c){
-        loaded.add(id1c);
-    }
+   public StatusLoad(){
+       log = new ArrayList<>();
+   }
 
-    public void addError(String error){
-        errors.add(error);
-    }
-
-    public void addDate(){
-        dates.add(LocalDateTime.now());
-    }
-
-    public void addLog(String id1c, String status){
-        addLoading(id1c);
-        addError(status);
-        addDate();
-    }
+   public void addLog(LoadLine logLine){
+       log.add(logLine);
+   }
 }

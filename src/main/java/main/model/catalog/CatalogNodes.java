@@ -4,11 +4,16 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Entity
-@Table(name = "nodes")
+@Table(name = "nodes", indexes = {
+        @Index(name = "idx_catalognodes_id_id1c", columnList = "id, id1c, parent_id, catalog_id")
+})
 public class CatalogNodes {
+    //region FIELDS
     @Id
     @Column(name = "id", nullable = false)
     private int id;
@@ -18,6 +23,8 @@ public class CatalogNodes {
     private String name;
 
     private int sorting;
+
+    private int deleted;
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
@@ -30,4 +37,5 @@ public class CatalogNodes {
     private int version;
 
     private String imagePath;
+    //endregion
 }
