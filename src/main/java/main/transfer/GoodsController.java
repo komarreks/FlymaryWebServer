@@ -9,9 +9,10 @@ import main.answers.LoadLine;
 import main.answers.StatusLoad;
 import main.fileTransfer.FileUploader;
 import main.model.catalog.Catalog;
-import main.model.catalog.CatalogNodes;
-import main.model.catalog.CatalogNodesRepository;
+import main.model.catalog.CatalogNode;
+import main.model.catalog.CatalogNodeRepository;
 import main.model.catalog.CatalogRepository;
+import main.model.catalog.nodechilddata.NodeProductRepository;
 import main.model.goods.Product;
 import main.model.goods.ProductReposytory;
 import main.model.goods.characs.Charac;
@@ -37,7 +38,7 @@ public class GoodsController {
     @Autowired
     CatalogRepository catalogRepository;
     @Autowired
-    CatalogNodesRepository catalogNodesRepository;
+    CatalogNodeRepository catalogNodesRepository;
     @Autowired
     PropertyReposytory propertyReposytory;
     @Autowired
@@ -48,6 +49,8 @@ public class GoodsController {
     CharacRepository characRepository;
     @Autowired
     ImageRepository imageRepository;
+    @Autowired
+    NodeProductRepository nodeProductRepository;
 
     @PostMapping(value = "/updateCatalogs", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity updateCatalogs(@RequestBody ArrayNode catalogList){
@@ -111,10 +114,10 @@ public class GoodsController {
 
             LoadLine loadLine = new LoadLine(jsonNode.get("id1c").textValue().trim());
 
-            CatalogNodes node = catalogNodesRepository.findById(id);
+            CatalogNode node = catalogNodesRepository.findById(id);
 
             if (node == null){
-                node = new CatalogNodes();
+                node = new CatalogNode();
                 node.setId(id);
                 node.setId1c(jsonNode.get("id1c").textValue().trim());
                 loadLine.setStatus("Загружен");
@@ -129,6 +132,14 @@ public class GoodsController {
 
             String image = jsonNode.get("image").textValue();
             node.setImagePath(FileUploader.safeImage(image, node.getName(), "jpg","nodes"));
+
+            ArrayNode productsId1c = (ArrayNode) jsonNode.get("products");
+            nodeProductRepository.deleteAll(node.getProducts());
+            for (JsonNode productId1c: productsId1c) {
+                String id1c = productId1c.textValue();
+                Product product = productReposytory.findById1c(id1c);
+                node.addProduct(product);
+            }
 
             catalogNodesRepository.save(node);
 

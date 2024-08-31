@@ -3,7 +3,11 @@ package main.model.catalog;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import main.model.catalog.nodechilddata.NodeProduct;
+import main.model.goods.Product;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -12,7 +16,7 @@ import java.util.UUID;
 @Table(name = "nodes", indexes = {
         @Index(name = "idx_catalognodes_id_id1c", columnList = "id, id1c, parent_id, catalog_id")
 })
-public class CatalogNodes {
+public class CatalogNode {
     //region FIELDS
     @Id
     @Column(name = "id", nullable = false)
@@ -28,7 +32,7 @@ public class CatalogNodes {
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
-    private CatalogNodes parent;
+    private CatalogNode parent;
 
     @ManyToOne
     @JoinColumn(name = "catalog_id")
@@ -37,5 +41,19 @@ public class CatalogNodes {
     private int version;
 
     private String imagePath;
+
+    @OneToMany(mappedBy = "node", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NodeProduct> products = new ArrayList<>();
+
+//endregion
+
+    //region METHODS
+    public void addProduct(Product product){
+        NodeProduct nodeProduct = new NodeProduct();
+        nodeProduct.setId(UUID.randomUUID());
+        nodeProduct.setNode(this);
+        nodeProduct.setProduct(product);
+        products.add(nodeProduct);
+    }
     //endregion
 }
