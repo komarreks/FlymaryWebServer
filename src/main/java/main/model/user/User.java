@@ -24,8 +24,10 @@ public class User {
     private String id1c;
     private String name;
     private int deleted;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Phone> phones;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PostAdress> postAdresses;
     //endregion

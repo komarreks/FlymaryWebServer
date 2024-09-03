@@ -43,6 +43,7 @@ public class UserController {
             userNode.put("name", user.getName());
             userNode.put("phones", user.phonesToString());
             userNode.put("adresses", user.adressesToString());
+            userNode.put("id", user.getId().toString());
             userList.add(userNode);
         });
 

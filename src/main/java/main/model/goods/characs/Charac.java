@@ -21,7 +21,7 @@ public class Charac{
     @Column(nullable = false)
     private UUID id;
 
-    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "product_id")
     private Product product;
 
@@ -29,11 +29,11 @@ public class Charac{
 
     private String id1c;
 
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "charac_id")
     private List<CharacPropertyValue> propertyes;
 
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "charac_id")
     private List<Image> images;
     //endregion

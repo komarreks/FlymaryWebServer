@@ -233,9 +233,10 @@ public class GoodsController {
                 charac = new Charac();
                 charac.setId1c(id1c);
                 charac.setId(UUID.randomUUID());
-                charac.setProduct(productReposytory.findById1c(productId1c));
                 loadLine.setStatus("Загружен");
             }
+
+            if (charac.getProduct() == null) charac.setProduct(productReposytory.findById1c(productId1c));
 
             charac.setName(jsonNode.get("name").textValue());
 

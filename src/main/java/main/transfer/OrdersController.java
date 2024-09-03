@@ -26,6 +26,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/orders")
 public class OrdersController {
+    //region COMPONENTS
     @Autowired
     OrderRepository orderRepository;
     @Autowired
@@ -36,7 +37,9 @@ public class OrdersController {
     CharacRepository characRepository;
     @Autowired
     OrderLineRepository orderLineRepository;
+    //endregion
 
+    //region REST API METHODS
     @PostMapping(value = "/updateOrders", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public void updateOrders(@RequestBody ArrayNode ordersList){
 //        StatusLoad statusLoad = new StatusLoad();
@@ -187,57 +190,11 @@ public class OrdersController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    private List<Order> getOrdersWithStatus(OrderStatus orderStatus){
-        return orderRepository.findByStatus(orderStatus);
-    }
-
-    private List<Order> getOrdersFinished(){
-        return getOrdersWithStatus(OrderStatus.IN_WORK).stream()
-                .filter(order -> order.getId1c() == null).toList();
-    }
-
-    private JsonNode createOrderJsonArray(List<Order> orders){
-        ObjectMapper mapper = new ObjectMapper();
-
-        ArrayNode jsOrders = mapper.createArrayNode();
-
-        for (Order order: orders) {
-
-            String userId = order.getUser() == null ? "" : order.getUser().getId1c();
-            String id1c = order.getId1c() == null ? "" : order.getId1c();
-
-            ObjectNode jsOrder = mapper.createObjectNode();
-            jsOrder.put("id", order.getId().toString());
-            jsOrder.put("date", order.getDate().toString());
-            jsOrder.put("user", userId);
-            jsOrder.put("id1c", id1c);
-
-            List<OrderLine> lines = order.getLines();
-            ArrayNode jsLines = mapper.createArrayNode();
-
-            for (OrderLine ol: lines) {
-                ObjectNode jsLine = mapper.createObjectNode();
-                jsLine.put("productId", ol.getProduct().getId1c());
-                jsLine.put("characId", ol.getCharac().getId1c());
-                jsLine.put("count", ol.getCount());
-                jsLine.put("price", ol.getPrice());
-                jsLine.put("sum", ol.getSum());
-                jsLines.add(jsLine);
-            }
-
-            jsOrder.put("lines", jsLines);
-            jsOrders.add(jsOrder);
-        }
-
-        ObjectNode response = mapper.createObjectNode();
-        return response.put("response", jsOrders);
-    }
-
     @GetMapping(value = "/getOpenOrders")
     public ResponseEntity getOpenOrders(){
         List<Order> openedOrders = getOrdersWithStatus(OrderStatus.OPEN);
 
-        JsonNode response = createOrderJsonArray(openedOrders);
+        ObjectNode response = createOrderJsonArray(openedOrders);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -246,7 +203,7 @@ public class OrdersController {
     public ResponseEntity getFinishedOrders(){
         List<Order> openedOrders = getOrdersFinished();
 
-        JsonNode response = createOrderJsonArray(openedOrders);
+        ObjectNode response = createOrderJsonArray(openedOrders);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -282,4 +239,54 @@ public class OrdersController {
 
         return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
+    //endregion
+
+    //region OTHER METHODS
+    private List<Order> getOrdersWithStatus(OrderStatus orderStatus){
+        return orderRepository.findByStatus(orderStatus);
+    }
+
+    private List<Order> getOrdersFinished(){
+        return getOrdersWithStatus(OrderStatus.IN_WORK).stream()
+                .filter(order -> order.getId1c() == null).toList();
+    }
+
+    private ObjectNode createOrderJsonArray(List<Order> orders){
+        ObjectMapper mapper = new ObjectMapper();
+
+        ArrayNode jsOrders = mapper.createArrayNode();
+
+        for (Order order: orders) {
+
+            String userId = order.getUser() == null ? "" : order.getUser().getId1c();
+            String id1c = order.getId1c() == null ? "" : order.getId1c();
+
+            ObjectNode jsOrder = mapper.createObjectNode();
+            jsOrder.put("id", order.getId().toString());
+            jsOrder.put("date", order.getDate().toString());
+            jsOrder.put("user", userId);
+            jsOrder.put("id1c", id1c);
+
+            List<OrderLine> lines = order.getLines();
+            ArrayNode jsLines = mapper.createArrayNode();
+
+            for (OrderLine ol: lines) {
+                ObjectNode jsLine = mapper.createObjectNode();
+                jsLine.put("productId", ol.getProduct().getId1c());
+                jsLine.put("characId", ol.getCharac().getId1c());
+                jsLine.put("count", ol.getCount());
+                jsLine.put("price", ol.getPrice());
+                jsLine.put("sum", ol.getSum());
+                jsLines.add(jsLine);
+            }
+
+            jsOrder.put("lines", jsLines);
+            jsOrders.add(jsOrder);
+        }
+
+        ObjectNode response = mapper.createObjectNode();
+        response.put("response", jsOrders);
+        return response;
+    }
+    //endregion
 }
