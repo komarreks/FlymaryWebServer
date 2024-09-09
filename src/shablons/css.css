@@ -1,0 +1,82 @@
+@font-face{
+    font-family: "oswald_bold";
+    src: url("./fonts/Oswald-Bold.ttf");
+}
+
+:root{
+    --oswald_bold:"oswald_bold"
+}
+
+*{
+    margin: 0;
+    padding: 0;
+}
+a{
+    text-decoration: none;
+}
+
+.header{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    background-color: rgb(193, 192, 192);
+    padding-bottom: 15px;
+}
+
+.header_left{
+    padding-left: 7%;
+    padding-top: 2%;
+}
+
+.h3{
+    font-family: var(--oswald_bold);
+    font-size: 15px;
+}
+
+.qr_code{
+    width: 100px;
+}
+
+.ico{
+    width: 15px;
+}
+
+.contacts{
+    display: flex;
+}
+
+.header_lables{
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.header_center{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.find{
+    background: #fff url("./temp_images/find.png") no-repeat;
+    background-position: 2% 50%;
+    background-size: 5% auto;
+    padding-left: 25px;
+    border-color: #fff;   
+    border-radius: 5px;           
+    font-family: var(--oswald_bold);
+    border: none;
+}
+
+.header_right{
+    padding-top: 2%;
+}
+
+.wb_button{
+    background: url(./temp_images/Wildberries_pc_svg.svg) no-repeat;
+    width: 100px;
+    height: 27px;
+    border: none;
+}
