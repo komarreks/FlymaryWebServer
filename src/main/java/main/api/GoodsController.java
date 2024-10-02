@@ -1,4 +1,4 @@
-package main.transfer;
+package main.api;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -51,58 +51,6 @@ public class GoodsController {
     ImageRepository imageRepository;
     @Autowired
     NodeProductRepository nodeProductRepository;
-
-    @PostMapping(value = "/updateCatalogs", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity updateCatalogs(@RequestBody ArrayNode catalogList){
-
-        StatusLoad statusLoad = new StatusLoad();
-
-        catalogList.forEach(jsonNode -> {
-            String id1c = jsonNode.get("id1c").textValue().trim();
-
-            LoadLine loadLine = new LoadLine(id1c);
-
-            Catalog catalog = catalogRepository.findById1c(id1c);
-
-            if (catalog == null){
-                catalog = new Catalog();
-                catalog.setId(UUID.randomUUID());
-                catalog.setId1c(id1c);
-                loadLine.setStatus("Загружен");
-            }
-
-            catalog.setDeleted(jsonNode.get("deleted").intValue());
-            catalog.setVersion(jsonNode.get("version").asInt());
-            catalog.setName(jsonNode.get("name").textValue());
-            catalog.setTextButton(jsonNode.get("textButton").textValue());
-
-            String image = jsonNode.get("image").textValue();
-            catalog.setImagePath(FileUploader.safeImage(image, catalog.getName(), "jpg","catalogs"));
-
-            ObjectReader reader = new ObjectMapper().readerFor(new TypeReference<List<String>>() {
-            });
-
-            StringBuilder sbStatusAdd = new StringBuilder();
-            try {
-                catalog.loadGoodPropertyes(reader.readValue(jsonNode.get("goodsPropertyes")));
-            }catch (Exception e){
-                sbStatusAdd.append("; ошибка загрузки списка свойств товаров");
-            }
-
-            try {
-                catalog.loadcharacPropertyes(reader.readValue(jsonNode.get("characPropertyes")));
-            }catch (Exception e){
-                sbStatusAdd.append("; ошибка загрузки списка свойств характеристик");
-            }
-
-            catalogRepository.save(catalog);
-            if (loadLine.getStatus() == null) loadLine.setStatus("Обновлен" + sbStatusAdd.toString());
-
-            statusLoad.addLog(loadLine);
-        });
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
-    }
 
     @PostMapping(value = "/updateNodes", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity updateNodes(@RequestBody ArrayNode nodesList){

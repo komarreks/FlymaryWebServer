@@ -3,22 +3,25 @@ package main.model.catalog;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "catalogs", indexes = {
-        @Index(name = "idx_catalog_id_id1c_unq", columnList = "id, id1c", unique = true)
+        @Index(name = "idx_catalog_id", columnList = "id"),
+        @Index(name = "idx_catalog_id1c", columnList = "id1c")
 })
 public class Catalog {
     //region FIELDS
     @Id
     @Column(name = "id", nullable = false)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    private String id;
 
     private String id1c;
 
@@ -26,7 +29,9 @@ public class Catalog {
 
     private String textButton;
 
-    private String imagePath;
+    @Lob
+    @Column(columnDefinition = "MEDIUMBLOB")
+    private byte[] image64;
 
     private int version;
 
@@ -35,23 +40,5 @@ public class Catalog {
     private List<String> goodProperty;
 
     private List<String> characProperty;
-    //endregion
-
-    //region METHODS
-    public void loadGoodPropertyes(List<String> list){
-        if (goodProperty == null){
-            goodProperty = new ArrayList<>();
-        }
-        goodProperty.clear();
-        goodProperty.addAll(list);
-    }
-
-    public void loadcharacPropertyes(List<String> list){
-        if (characProperty == null){
-            characProperty = new ArrayList<>();
-        }
-        characProperty.clear();
-        characProperty.addAll(list);
-    }
     //endregion
 }

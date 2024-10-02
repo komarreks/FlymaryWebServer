@@ -1,5 +1,9 @@
 package main.fileTransfer;
 
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
@@ -8,8 +12,14 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Base64;
 
+@Component
+@Getter
+@Deprecated
 public class FileUploader {
     private static final String rootPath = "img/";
+
+    @Value("${app.global-site-res}")
+    private String globalResPath;
 
     private static void createResourse(String res){
         File root = new File(rootPath);
