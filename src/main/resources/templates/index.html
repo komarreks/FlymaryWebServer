@@ -34,7 +34,7 @@
 
         <div class="header_center">
             <div class="qr_code">
-                <img src="./temp_images/headerlogo.svg">
+                <a href=""><img src="./temp_images/headerlogo.svg"></a>
             </div>
             <div class="find_field">
                 <input class="find" type="text" name="find" placeholder="найти на FLYMARY" size="50%"/>
@@ -104,7 +104,7 @@
 
     <div class="catalogs" th:each="c : ${catalogs}">
         <div class="catalog">
-            <img class="img_catalog" th:src="${c.imagePath}" alt="" src="">
+            <img class="img_catalog" th:src="@{'data:image/jpeg;base64,' + ${c.image64}}" alt="" src="">
             <button class="catalog_button" th:text="${c.textButton}">ВЫБЕРИ МЕНЯ</button>
         </div>
 

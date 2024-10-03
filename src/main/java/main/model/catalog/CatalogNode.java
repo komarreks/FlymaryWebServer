@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import main.model.catalog.nodechilddata.NodeProduct;
 import main.model.goods.Product;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,14 +15,11 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "nodes", indexes = {
-        @Index(name = "idx_catalognodes_id_id1c", columnList = "id, id1c, parent_id, catalog_id")
+        @Index(name = "idx_catalognode_id1c", columnList = "id1c")
 })
 public class CatalogNode {
     //region FIELDS
     @Id
-    @Column(name = "id", nullable = false)
-    private int id;
-
     private String id1c;
 
     private String name;
@@ -40,7 +38,9 @@ public class CatalogNode {
 
     private int version;
 
-    private String imagePath;
+    @Lob
+    @Column(columnDefinition = "MEDIUMBLOB")
+    private byte[] image64;
 
     @OneToMany(mappedBy = "node", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NodeProduct> products = new ArrayList<>();

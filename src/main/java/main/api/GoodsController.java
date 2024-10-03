@@ -36,10 +36,6 @@ import java.util.*;
 public class GoodsController {
 
     @Autowired
-    CatalogRepository catalogRepository;
-    @Autowired
-    CatalogNodeRepository catalogNodesRepository;
-    @Autowired
     PropertyReposytory propertyReposytory;
     @Autowired
     ProductReposytory productReposytory;
@@ -49,55 +45,6 @@ public class GoodsController {
     CharacRepository characRepository;
     @Autowired
     ImageRepository imageRepository;
-    @Autowired
-    NodeProductRepository nodeProductRepository;
-
-    @PostMapping(value = "/updateNodes", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity updateNodes(@RequestBody ArrayNode nodesList){
-
-        StatusLoad statusLoad = new StatusLoad();
-
-        nodesList.forEach(jsonNode -> {
-            int id = jsonNode.get("id").intValue();
-
-            LoadLine loadLine = new LoadLine(jsonNode.get("id1c").textValue().trim());
-
-            CatalogNode node = catalogNodesRepository.findById(id);
-
-            if (node == null){
-                node = new CatalogNode();
-                node.setId(id);
-                node.setId1c(jsonNode.get("id1c").textValue().trim());
-                loadLine.setStatus("Загружен");
-            }
-
-            node.setVersion(jsonNode.get("version").intValue());
-            node.setName(jsonNode.get("name").textValue());
-            node.setSorting(jsonNode.get("sorting").intValue());
-            node.setParent(catalogNodesRepository.findById(jsonNode.get("parent").intValue()));
-            node.setCatalog(catalogRepository.findById1c(jsonNode.get("catalog").textValue()));
-            node.setDeleted(jsonNode.get("deleted").intValue());
-
-            String image = jsonNode.get("image").textValue();
-            node.setImagePath(FileUploader.safeImage(image, node.getName(), "jpg","nodes"));
-
-            ArrayNode productsId1c = (ArrayNode) jsonNode.get("products");
-            nodeProductRepository.deleteAll(node.getProducts());
-            for (JsonNode productId1c: productsId1c) {
-                String id1c = productId1c.textValue();
-                Product product = productReposytory.findById1c(id1c);
-                node.addProduct(product);
-            }
-
-            catalogNodesRepository.save(node);
-
-            if (loadLine.getStatus() == null) loadLine.setStatus("Обновлен");
-
-            statusLoad.addLog(loadLine);
-        });
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
-    }
 
     @PostMapping(value = "updatePropertyes", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity updatePropertyes(@RequestBody ArrayNode propertyList){

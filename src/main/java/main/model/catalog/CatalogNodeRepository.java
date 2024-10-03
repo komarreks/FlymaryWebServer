@@ -1,8 +1,10 @@
 package main.model.catalog;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CatalogNodeRepository extends CrudRepository<CatalogNode, Integer> {
+import java.util.Optional;
 
-    CatalogNode findById(int id);
+public interface CatalogNodeRepository extends JpaRepository<CatalogNode, String> {
+
+    CatalogNode findById1c(String id1c);
 }

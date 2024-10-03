@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @Getter
@@ -28,6 +28,8 @@ public class Catalog {
     private String name;
 
     private String textButton;
+
+    private int sorting;
 
     @Lob
     @Column(columnDefinition = "MEDIUMBLOB")

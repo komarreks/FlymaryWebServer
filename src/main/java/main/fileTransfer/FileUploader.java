@@ -18,9 +18,6 @@ import java.util.Base64;
 public class FileUploader {
     private static final String rootPath = "img/";
 
-    @Value("${app.global-site-res}")
-    private String globalResPath;
-
     private static void createResourse(String res){
         File root = new File(rootPath);
         if (!root.exists()){
@@ -51,6 +48,7 @@ public class FileUploader {
 
             FileOutputStream fileOutputStream = new FileOutputStream(file);
             byte[] imgArrayByte = Base64.getDecoder().decode(body.replaceAll("\r\n",""));
+            byte[] base64 = Base64.getEncoder().encode(imgArrayByte);
             fileOutputStream.write(imgArrayByte);
             fileOutputStream.flush();
 
