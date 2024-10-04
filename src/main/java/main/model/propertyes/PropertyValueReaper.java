@@ -2,6 +2,8 @@ package main.model.propertyes;
 
 import main.model.goods.Product;
 import main.model.goods.characs.Charac;
+import main.model.propertyes.goodpropery.GoodPropertyValue;
+import main.model.propertyes.goodpropery.GoodPropertyValueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,17 +22,17 @@ public class PropertyValueReaper {
 
         GoodPropertyValue goodPropertyValue = null;
 
-        if (!(product.getId() == null)){
-            goodPropertyValue = goodPropertyValueRepository.findByProductAndProperty(product, property);
-        }
+//        if (!(product.getId() == null)){
+//            goodPropertyValue = goodPropertyValueRepository.findByProductAndProperty(product, property);
+//        }
 
-        if (goodPropertyValue == null){
-            goodPropertyValue = new GoodPropertyValue(product, property, value);
-        }
+//        if (goodPropertyValue == null){
+//            goodPropertyValue = new GoodPropertyValue(product, property, value);
+//        }
 
-        if (!goodPropertyValue.getValue().equals(value)){
-            goodPropertyValue.setValue(value);
-        }
+//        if (!goodPropertyValue.getValue().equals(value)){
+//            goodPropertyValue.setValue(value);
+//        }
 
         return goodPropertyValue;
     }

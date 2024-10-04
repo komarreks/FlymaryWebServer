@@ -1,18 +1,11 @@
 package main.api;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import lombok.RequiredArgsConstructor;
 import main.answers.LoadLine;
 import main.answers.StatusLoad;
 import main.fileTransfer.FileUploader;
-import main.model.catalog.Catalog;
-import main.model.catalog.CatalogNode;
-import main.model.catalog.CatalogNodeRepository;
-import main.model.catalog.CatalogRepository;
-import main.model.catalog.nodechilddata.NodeProductRepository;
 import main.model.goods.Product;
 import main.model.goods.ProductReposytory;
 import main.model.goods.characs.Charac;
@@ -20,6 +13,8 @@ import main.model.goods.characs.CharacRepository;
 import main.model.images.Image;
 import main.model.images.ImageRepository;
 import main.model.propertyes.*;
+import main.model.propertyes.goodpropery.GoodPropertyValue;
+import main.services.ProductSevice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,8 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.*;
 
 @RestController
-@RequestMapping("/goods")
+@RequiredArgsConstructor
+@RequestMapping("api/goods")
 public class GoodsController {
+
+    @Autowired
+    private final ProductSevice service;
 
     @Autowired
     PropertyReposytory propertyReposytory;
@@ -73,42 +72,41 @@ public class GoodsController {
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
     }
 
-    @PostMapping(value = "updateGoods", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity updateGoods(@RequestBody ArrayNode goodsList){
-        StatusLoad statusLoad = new StatusLoad();
+    @PostMapping(value = "/update", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity update(@RequestBody ArrayNode goodsList){
+        StatusLoad statusLoad = service.createUpdate(goodsList);
 
-        goodsList.forEach(jsonNode -> {
-            String id1c = jsonNode.get("id1c").textValue().trim();
-
-            LoadLine loadLine = new LoadLine(id1c);
-
-            Product product = productReposytory.findById1c(id1c);
-
-            if (product == null){
-                product = new Product();
-                product.setId1c(id1c);
-                product.setId(UUID.randomUUID());
-                loadLine.setStatus("Загружен");
-            }
-
-            product.setName(jsonNode.get("name").textValue());
-
-            product.clearPropertyes();
-
-            Set<Map.Entry<String, JsonNode>> set =  jsonNode.get("propertyes").properties();
-
-            for(Map.Entry<String, JsonNode> key: set){
-                GoodPropertyValue newProperty = propertyValueReaper.findPropertyValue(product, key.getKey(), key.getValue().asText());
-
-                product.addProperty(newProperty);
-            }
-
-            productReposytory.save(product);
-
-            if (loadLine.getStatus() == null) loadLine.setStatus("Обновлен");
-            statusLoad.addLog(loadLine);
-        });
-
+//        goodsList.forEach(jsonNode -> {
+//            String id1c = jsonNode.get("id1c").textValue().trim();
+//
+//            LoadLine loadLine = new LoadLine(id1c);
+//
+//            Product product = productReposytory.findById1c(id1c);
+//
+//            if (product == null){
+//                product = new Product();
+//                product.setId1c(id1c);
+//                loadLine.setStatus("Загружен");
+//            }
+//
+//            product.setName(jsonNode.get("name").textValue());
+//
+//            product.clearPropertyes();
+//
+//            Set<Map.Entry<String, JsonNode>> set =  jsonNode.get("propertyes").properties();
+//
+//            for(Map.Entry<String, JsonNode> key: set){
+//                GoodPropertyValue newProperty = propertyValueReaper.findPropertyValue(product, key.getKey(), key.getValue().asText());
+//
+//                product.addProperty(newProperty);
+//            }
+//
+//            productReposytory.save(product);
+//
+//            if (loadLine.getStatus() == null) loadLine.setStatus("Обновлен");
+//            statusLoad.addLog(loadLine);
+//        });
+//
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
     }
 

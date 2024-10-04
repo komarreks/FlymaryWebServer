@@ -4,23 +4,26 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import main.model.images.Image;
-import main.model.propertyes.GoodPropertyValue;
+import main.model.propertyes.goodpropery.GoodPropertyValue;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "products", indexes = {
-        @Index(name = "idx_product_id_id1c", columnList = "id, id1c")
+        @Index(name = "idx_product_id", columnList = "id"),
+        @Index(name = "idx_product_id1c", columnList = "id1c")
 })
 public class Product {
     //region FIELDS
     @Id
     @Column(name = "id", nullable = false)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    private String id;
 
     private String id1c;
 
