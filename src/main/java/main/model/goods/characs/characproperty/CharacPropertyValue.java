@@ -1,23 +1,26 @@
-package main.model.propertyes.goodpropery;
+package main.model.goods.characs.characproperty;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import main.model.goods.Product;
-import org.hibernate.annotations.UuidGenerator;
+import main.model.goods.characs.Charac;
+import main.model.goods.goodpropery.GoodPropertyPK;
+import main.model.propertyes.Property;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "good_property_values")
+@Table(name = "charac_property_values")
 @NoArgsConstructor
-public class GoodPropertyValue {
+public class CharacPropertyValue {
+
     // region FIELDS
     @EmbeddedId
-    private GoodPropertyPK goodPropertyPK;
+    private CharacPropertyPK characPropertyPK;
 
     @Column(name = "string_value")
     private String stringValue;
@@ -35,18 +38,18 @@ public class GoodPropertyValue {
      * @param pk
      * @param value
      */
-    public <T> GoodPropertyValue(GoodPropertyPK pk, T value) {
-        this.goodPropertyPK = pk;
+    public <T> CharacPropertyValue(CharacPropertyPK pk, T value) {
+        this.characPropertyPK = pk;
         setValue(value);
     }
 
-    public GoodPropertyValue(GoodPropertyPK pk, BigDecimal value) {
-        this.goodPropertyPK = pk;
+    public CharacPropertyValue(CharacPropertyPK pk, BigDecimal value) {
+        this.characPropertyPK = pk;
         setValue(null, value, null);
     }
 
-    public GoodPropertyValue(GoodPropertyPK pk, Boolean value) {
-        this.goodPropertyPK = pk;
+    public CharacPropertyValue(CharacPropertyPK pk, Boolean value) {
+        this.characPropertyPK = pk;
         setValue(null, null, value);
     }
     //endregion

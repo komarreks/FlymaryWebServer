@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import main.model.images.Image;
-import main.model.propertyes.goodpropery.GoodPropertyValue;
+import main.model.goods.goodpropery.GoodPropertyValue;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;

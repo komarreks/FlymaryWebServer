@@ -5,11 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 import main.model.goods.Product;
 import main.model.images.Image;
-import main.model.propertyes.CharacPropertyValue;
+import main.model.goods.characs.characproperty.CharacPropertyValue;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,7 +19,9 @@ public class Charac{
     //region FIELDS
     @Id
     @Column(nullable = false)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    private String id;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "product_id")

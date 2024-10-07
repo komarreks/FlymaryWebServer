@@ -7,8 +7,12 @@ import main.answers.LoadLine;
 import main.answers.StatusLoad;
 import main.model.goods.Product;
 import main.model.goods.ProductReposytory;
-import main.model.propertyes.goodpropery.GoodPropertyPK;
-import main.model.propertyes.goodpropery.GoodPropertyValue;
+import main.model.goods.characs.Charac;
+import main.model.goods.characs.CharacRepository;
+import main.model.goods.characs.characproperty.CharacPropertyPK;
+import main.model.goods.characs.characproperty.CharacPropertyValue;
+import main.model.goods.goodpropery.GoodPropertyPK;
+import main.model.goods.goodpropery.GoodPropertyValue;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -19,6 +23,7 @@ public class ProductSevice {
 
     //region FIELDS
     private final ProductReposytory reposytory;
+    private final CharacRepository characRepository;
     //endregion
 
     //region METHODS
@@ -71,6 +76,65 @@ public class ProductSevice {
             statusLoad.addLog(loadLine);
 
         }
+
+        return statusLoad;
+    }
+
+    /**
+     * Метод создания/обновления характеристик товара вместе со свойствами из JSON массива
+     * используется в REST API
+     * @param jsCharacs
+     * @return
+     */
+    public StatusLoad createUpdateCharacs(ArrayNode jsCharacs){
+        StatusLoad statusLoad = new StatusLoad();
+
+        jsCharacs.forEach(jsCharac -> {
+            String id1c = jsCharac.get("id1c").textValue().trim();
+            String productId1c = jsCharac.get("productId1c").textValue().trim();
+
+            LoadLine loadLine = new LoadLine(id1c);
+
+            Charac charac = characRepository.findById1c(id1c);
+
+            if (charac == null){
+                charac = new Charac();
+                loadLine.setStatus("Загружен");
+            }
+
+            charac.setId1c(id1c);
+
+            if (charac.getProduct() == null) charac.setProduct(reposytory.findById1c(productId1c));
+
+            charac.setName(jsCharac.get("name").textValue());
+
+            charac.clearPropertyes();
+
+            ArrayNode jsPropertyes = (ArrayNode) jsCharac.get("propertyes");
+
+            for (JsonNode jsProp: jsPropertyes) {
+                CharacPropertyValue characPropertyValue = new CharacPropertyValue();
+                characPropertyValue.setCharacPropertyPK(new CharacPropertyPK(charac, jsProp.get("name").textValue()));
+
+                switch (jsProp.get("type").textValue()){
+                    case ("boolean"):
+                        characPropertyValue.setBoolValue(jsProp.get("value").booleanValue());
+                        break;
+                    case ("digit"):
+                        characPropertyValue.setDigitValue(new BigDecimal(jsProp.get("value").floatValue()));
+                        break;
+                    default:
+                        characPropertyValue.setStringValue(jsProp.get("value").textValue());
+                }
+
+                charac.addProperty(characPropertyValue);
+            }
+
+            characRepository.save(charac);
+
+            if (loadLine.getStatus() == null) loadLine.setStatus("Обновлен");
+            statusLoad.addLog(loadLine);
+        });
 
         return statusLoad;
     }

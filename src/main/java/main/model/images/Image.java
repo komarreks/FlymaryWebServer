@@ -9,9 +9,7 @@ import main.model.goods.characs.Charac;
 import java.util.UUID;
 
 @Entity
-@Table(name = "images", indexes = {
-        @Index(name = "idx_image_id_product_id", columnList = "id, product_id, charac_id, id1c")
-})
+@Table(name = "images")
 @Getter
 @Setter
 public class Image {

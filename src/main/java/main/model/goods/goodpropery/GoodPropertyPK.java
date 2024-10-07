@@ -1,4 +1,4 @@
-package main.model.propertyes.goodpropery;
+package main.model.goods.goodpropery;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;

@@ -6,14 +6,13 @@ import lombok.RequiredArgsConstructor;
 import main.answers.LoadLine;
 import main.answers.StatusLoad;
 import main.fileTransfer.FileUploader;
-import main.model.goods.Product;
 import main.model.goods.ProductReposytory;
 import main.model.goods.characs.Charac;
 import main.model.goods.characs.CharacRepository;
+import main.model.goods.characs.characproperty.CharacPropertyValue;
 import main.model.images.Image;
 import main.model.images.ImageRepository;
 import main.model.propertyes.*;
-import main.model.propertyes.goodpropery.GoodPropertyValue;
 import main.services.ProductSevice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -76,78 +75,12 @@ public class GoodsController {
     public ResponseEntity update(@RequestBody ArrayNode goodsList){
         StatusLoad statusLoad = service.createUpdate(goodsList);
 
-//        goodsList.forEach(jsonNode -> {
-//            String id1c = jsonNode.get("id1c").textValue().trim();
-//
-//            LoadLine loadLine = new LoadLine(id1c);
-//
-//            Product product = productReposytory.findById1c(id1c);
-//
-//            if (product == null){
-//                product = new Product();
-//                product.setId1c(id1c);
-//                loadLine.setStatus("Загружен");
-//            }
-//
-//            product.setName(jsonNode.get("name").textValue());
-//
-//            product.clearPropertyes();
-//
-//            Set<Map.Entry<String, JsonNode>> set =  jsonNode.get("propertyes").properties();
-//
-//            for(Map.Entry<String, JsonNode> key: set){
-//                GoodPropertyValue newProperty = propertyValueReaper.findPropertyValue(product, key.getKey(), key.getValue().asText());
-//
-//                product.addProperty(newProperty);
-//            }
-//
-//            productReposytory.save(product);
-//
-//            if (loadLine.getStatus() == null) loadLine.setStatus("Обновлен");
-//            statusLoad.addLog(loadLine);
-//        });
-//
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
     }
 
     @PostMapping(value = "updateCharacs", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity updateCharacs(@RequestBody ArrayNode characsList){
-        StatusLoad statusLoad = new StatusLoad();
-
-        characsList.forEach(jsonNode -> {
-            String id1c = jsonNode.get("id1c").textValue().trim();
-            String productId1c = jsonNode.get("productId1c").textValue().trim();
-
-            LoadLine loadLine = new LoadLine(id1c);
-
-            Charac charac = characRepository.findById1c(id1c);
-
-            if (charac == null){
-                charac = new Charac();
-                charac.setId1c(id1c);
-                charac.setId(UUID.randomUUID());
-                loadLine.setStatus("Загружен");
-            }
-
-            if (charac.getProduct() == null) charac.setProduct(productReposytory.findById1c(productId1c));
-
-            charac.setName(jsonNode.get("name").textValue());
-
-            charac.clearPropertyes();
-
-            Set<Map.Entry<String, JsonNode>> set =  jsonNode.get("propertyes").properties();
-
-            for(Map.Entry<String, JsonNode> key: set){
-                CharacPropertyValue newProperty = propertyValueReaper.findPropertyValue(charac, key.getKey(), key.getValue().asText());
-
-                charac.addProperty(newProperty);
-            }
-
-            characRepository.save(charac);
-
-            if (loadLine.getStatus() == null) loadLine.setStatus("Обновлен");
-            statusLoad.addLog(loadLine);
-        });
+    public ResponseEntity updateCharacs(@RequestBody ArrayNode jsCharacs){
+        StatusLoad statusLoad = service.createUpdateCharacs(jsCharacs);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
     }

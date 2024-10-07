@@ -124,7 +124,7 @@ public class OrdersController {
         Charac charac = null;
 
         if (characId.length() > 0){
-            charac = characRepository.findById(UUID.fromString(characId)).get();
+            charac = characRepository.findById(characId).get();
 
             if (charac == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleAnswer("not found charac"));}
         }

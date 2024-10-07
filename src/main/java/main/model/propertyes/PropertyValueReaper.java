@@ -2,8 +2,10 @@ package main.model.propertyes;
 
 import main.model.goods.Product;
 import main.model.goods.characs.Charac;
-import main.model.propertyes.goodpropery.GoodPropertyValue;
-import main.model.propertyes.goodpropery.GoodPropertyValueRepository;
+import main.model.goods.characs.characproperty.CharacPropertyValue;
+import main.model.goods.characs.characproperty.CharacPropertyValueRepository;
+import main.model.goods.goodpropery.GoodPropertyValue;
+import main.model.goods.goodpropery.GoodPropertyValueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,17 +44,17 @@ public class PropertyValueReaper {
 
         CharacPropertyValue characPropertyValue = null;
 
-        if (!(charac.getId() == null)){
-            characPropertyValue = characPropertyValueRepository.findByCharacAndProperty(charac, property);
-        }
-
-        if (characPropertyValue == null){
-            characPropertyValue = new CharacPropertyValue(charac, property, value);
-        }
-
-        if (!characPropertyValue.getValue().equals(value)){
-            characPropertyValue.setValue(value);
-        }
+//        if (!(charac.getId() == null)){
+//            characPropertyValue = characPropertyValueRepository.findByCharacAndProperty(charac, property);
+//        }
+//
+//        if (characPropertyValue == null){
+//            characPropertyValue = new CharacPropertyValue(charac, property, value);
+//        }
+//
+//        if (!characPropertyValue.getValue().equals(value)){
+//            characPropertyValue.setValue(value);
+//        }
 
         return characPropertyValue;
     }
