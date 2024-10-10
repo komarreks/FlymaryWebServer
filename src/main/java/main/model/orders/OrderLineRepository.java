@@ -1,11 +1,12 @@
 package main.model.orders;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-public interface OrderLineRepository extends CrudRepository<OrderLine, OrderLinePK> {
+public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLinePK> {
 
     @Transactional
     @Modifying

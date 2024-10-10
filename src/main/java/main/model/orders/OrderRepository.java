@@ -4,13 +4,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-public interface OrderRepository extends JpaRepository<Order, UUID> {
+public interface OrderRepository extends JpaRepository<Order, String> {
 
     Order findById1c(String id1c);
 
-    Optional<Order> findById(UUID id);
+    Optional<Order> findById(String id);
 
     List<Order> findByStatus(OrderStatus orderStatus);
 }

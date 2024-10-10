@@ -6,6 +6,7 @@ import lombok.Setter;
 import main.model.goods.Product;
 import main.model.goods.characs.Charac;
 import main.model.user.User;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,8 +21,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Order {
     //region FIELDS
     @Id
-    @Column(name = "id", nullable = false)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    private String id;
 
     private LocalDateTime date;
     private LocalDateTime dateOpenOrder;
@@ -44,7 +46,6 @@ public class Order {
     //region METHODS
     public static Order createNewOrder(){
         Order order = new Order();
-        order.setId(UUID.randomUUID());
         order.setDate(LocalDateTime.now());
         order.setStatus(OrderStatus.OPEN);
         order.clearTable();

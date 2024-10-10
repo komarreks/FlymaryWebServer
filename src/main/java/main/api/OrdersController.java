@@ -5,13 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import main.answers.SimpleAnswer;
-import main.model.goods.Product;
+import main.answers.StatusLoad;
 import main.model.goods.ProductReposytory;
-import main.model.goods.characs.Charac;
 import main.model.goods.characs.CharacRepository;
 import main.model.orders.*;
 import main.model.user.User;
 import main.model.user.UserRepository;
+import main.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,7 +27,7 @@ import java.util.UUID;
 public class OrdersController {
     //region COMPONENTS
     @Autowired
-    OrderRepository orderRepository;
+    OrderService service;
     @Autowired
     UserRepository userRepository;
     @Autowired
@@ -40,153 +40,52 @@ public class OrdersController {
 
     //region REST API METHODS
     @PostMapping(value = "/updateOrders", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public void updateOrders(@RequestBody ArrayNode ordersList){
-//        StatusLoad statusLoad = new StatusLoad();
-//
-//        ordersList.forEach(jsonNode -> {
-//            String id1c = jsonNode.get("id1c").textValue();
-//
-//            Order order = orderRepository.findById1c(id1c);
-//
-//            if (order == null){
-//                long id = jsonNode.get("site_id").intValue();
-//
-//                order = orderRepository.findById(id);
-//
-//                if (order != null){
-//                    order.setId1c(id1c);
-//                }
-//            }
-//
-//            if (order == null){
-//                //statusLoad.addLog(id1c, "Заказ не синхронизирован");
-//            }
-//
-//            if (order != null){
-//                //order.setDate(jsonNode.get("date"));
-//                order.setStatus(OrderStatus.getStatus(jsonNode.get("status").textValue()));
-//                order.setUser(userRepository.findById1c(jsonNode.get("userId1c").textValue()));
-//
-//                order.clearTable();
-//
-//                ArrayNode jsLines = (ArrayNode) jsonNode.get("orderLines");
-//
-//                for (JsonNode line : jsLines) {
-//                    Product product = productReposytory.findById1c(line.get("productId1c").textValue());
-//                    Charac charac = characRepository.findById1c(line.get("characId1c").textValue());
-//                    int count = line.get("count").intValue();
-//                    double price = line.get("price").doubleValue();
-//
-//                    order.addLine(product, charac, count, price);
-//                }
-//
-//                orderRepository.save(order);
-//
-//                //statusLoad.addLog(id1c, "Успешно обновлен");
-//            }
-//        });
+    public ResponseEntity updateOrders(@RequestBody ArrayNode jsOrders){
+        StatusLoad statusLoad = service.loadChangedOrders(jsOrders);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
     }
 
-    @GetMapping(value = "/createOrder")
-    public ResponseEntity createOrder(){
-        Order order = Order.createNewOrder();
-
-        orderRepository.save(order);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(order.getId());
-    }
-
-    @GetMapping(value = "/createOrderWithAutorize")
+    @GetMapping(value = "/createOrder", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity createOrder(@RequestBody JsonNode jsUserId){
-        Order order = Order.createNewOrder();
-
-        String stringUserId = jsUserId.get("userId").textValue();
-
-        order.setUser(userRepository.findById(UUID.fromString(stringUserId)).get());
-
-        orderRepository.save(order);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(order.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.createNewOrder(jsUserId).getId());
     }
 
     @PostMapping(value = "/addLine", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity addLine(@RequestBody JsonNode jsLine){
-        Order order = orderRepository.findById(UUID.fromString(jsLine.get("id").textValue())).get();
+        SimpleAnswer sa = service.addLine(jsLine);
 
-        if (order == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleAnswer("not found order"));}
-
-        Product product = productReposytory.findById(UUID.fromString(jsLine.get("productId").textValue())).get();
-
-        if (product == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleAnswer("not found product"));}
-
-        String characId = jsLine.get("characId").textValue();
-
-        Charac charac = null;
-
-        if (characId.length() > 0){
-            charac = characRepository.findById(characId).get();
-
-            if (charac == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleAnswer("not found charac"));}
+        if (sa.isError()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(sa.getText());
         }
-
-        int count = jsLine.get("count").intValue();
-        double price = jsLine.get("price").doubleValue();
-
-        order.addLine(product, charac, count, price);
-
-        orderRepository.save(order);
-
-        return new ResponseEntity(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(sa.getText());
     }
 
     @PostMapping(value = "/changeCount", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity changeCount(@RequestBody JsonNode jsLine){
-        String id = jsLine.get("id").textValue();
+        SimpleAnswer sa = service.changeCountInLine(jsLine);
 
-        Order order = orderRepository.findById(UUID.fromString(id)).get();
+        if (sa.isError()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(sa.getText());
 
-        if (order == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleAnswer("not found order"));}
-
-        int lineNumber = jsLine.get("lineNumber").intValue();
-        int newCount = jsLine.get("newCount").intValue();
-
-        order.changeCount(lineNumber, newCount);
-
-        orderRepository.save(order);
-
-        return new ResponseEntity(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(sa.getText());
     }
 
     @DeleteMapping(value = "/deleteLine")
     public ResponseEntity deleteLine(@RequestBody JsonNode jsLine){
-        String id = jsLine.get("id").textValue();
+        SimpleAnswer sa = service.deleteLine(jsLine);
 
-        Order order = orderRepository.findById(UUID.fromString(id)).get();
+        if (sa.isError()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(sa.getText());
 
-        if (order == null){return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleAnswer("not found order"));}
-
-        order.deleteLine(jsLine.get("lineNumber").intValue());
-
-        orderRepository.save(order);
-        orderLineRepository.deleteAllByDeleted();
-
-        return new ResponseEntity(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(sa.getText());
     }
 
     @DeleteMapping(value = "/deleteOrder")
     public ResponseEntity deleteOrder(@RequestBody JsonNode jsLine){
-        Order order = orderRepository.findById(UUID.fromString(jsLine.get("id").textValue())).get();
+        SimpleAnswer sa = service.deleteOrder(jsLine);
 
-        if (order == null) return new ResponseEntity(HttpStatus.NOT_FOUND);
+        if (sa.isError()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(sa.getText());
 
-        if (order.getId1c() != null){
-            if (!order.getId1c().isEmpty()) return new ResponseEntity("order follow to 1c, sorry", HttpStatus.CONFLICT);
-        }
-
-        orderLineRepository.deleteAllByOrder(order);
-        orderRepository.delete(order);
-
-        return new ResponseEntity(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(sa.getText());
     }
 
     @GetMapping(value = "/getOpenOrders")
@@ -207,42 +106,19 @@ public class OrdersController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PostMapping(value = "/setUser")
-    public ResponseEntity setUser(@RequestBody JsonNode jsLine){
-        Order order = orderRepository.findById(UUID.fromString(jsLine.get("id").textValue())).get();
-        User user = userRepository.findById(UUID.fromString(jsLine.get("userId").textValue())).get();
-
-        if (order != null && user != null){
-            order.setUser(user);
-            orderRepository.save(order);
-            return new ResponseEntity(HttpStatus.OK);
-        }
-
-        return new ResponseEntity(HttpStatus.NOT_FOUND);
-    }
-
     @PostMapping(value = "/finalizeOrder")
-    public ResponseEntity finalizeOrder(@RequestBody JsonNode jsonLine){
-        Order order = orderRepository.findById(UUID.fromString(jsonLine.get("id").textValue())).get();
+    public ResponseEntity finalizeOrder(@RequestBody JsonNode jsOrder){
+        SimpleAnswer sa = service.finallyOrder(jsOrder);
 
-        if (order != null){
-            if (order.getUser() == null)return ResponseEntity.status(HttpStatus.NOT_FOUND).body("user not set");
+        if (sa.isError()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(sa.getText());
 
-            order.setStatus(OrderStatus.IN_WORK);
-            order.setDateOpenOrder(order.getDate());
-            order.setDate(LocalDateTime.now());
-
-            orderRepository.save(order);
-            return new ResponseEntity(HttpStatus.OK);
-        }
-
-        return new ResponseEntity(HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.OK).body(sa.getText());
     }
     //endregion
 
     //region OTHER METHODS
     private List<Order> getOrdersWithStatus(OrderStatus orderStatus){
-        return orderRepository.findByStatus(orderStatus);
+        return service.findByStatus(orderStatus);
     }
 
     private List<Order> getOrdersFinished(){

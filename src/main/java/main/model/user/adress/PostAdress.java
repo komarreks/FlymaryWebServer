@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import main.model.user.User;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
 
@@ -18,7 +19,9 @@ import java.util.UUID;
 public class PostAdress {
     //region FIELDS
     @Id
-    UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    String id;
 
     private String postAdress;
 
@@ -29,7 +32,6 @@ public class PostAdress {
 
     //region CONSTRUCTORS
     public PostAdress(User user, String postAdress){
-        id = UUID.randomUUID();
         this.user = user;
         this.postAdress = postAdress;
     }

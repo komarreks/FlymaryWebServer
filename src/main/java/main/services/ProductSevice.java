@@ -13,9 +13,14 @@ import main.model.goods.characs.characproperty.CharacPropertyPK;
 import main.model.goods.characs.characproperty.CharacPropertyValue;
 import main.model.goods.goodpropery.GoodPropertyPK;
 import main.model.goods.goodpropery.GoodPropertyValue;
+import main.model.images.Image;
+import main.model.images.ImageRepository;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -137,6 +142,28 @@ public class ProductSevice {
         });
 
         return statusLoad;
+    }
+
+    /**
+     * Метод возвращает из репозитория товар
+     * @param productId1c
+     * @return
+     */
+    public Product findById1c(String productId1c) {
+        return reposytory.findById1c(productId1c);
+    }
+
+    /**
+     * Метод возвращает из репозитория характеристику товара
+     * @param id
+     * @return
+     */
+    public Charac findCharacById1c(String id){
+        return characRepository.findById1c(id);
+    }
+
+    public Product findById(String productId) {
+        return reposytory.findById(productId).orElse(null);
     }
     //endregion
 

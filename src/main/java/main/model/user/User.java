@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import main.model.user.phone.Phone;
 import main.model.user.adress.PostAdress;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,12 +16,15 @@ import java.util.concurrent.atomic.AtomicReference;
 @Getter
 @Setter
 @Table(name = "users", indexes = {
-        @Index(name = "idx_user_id_id1c_unq", columnList = "id, id1c", unique = true)
+        @Index(name = "idx_user_id", columnList = "id"),
+        @Index(name = "idx_user_id1c", columnList = "id1c")
 })
 public class User {
     //region FIELDS
     @Id
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    private String id;
     private String id1c;
     private String name;
     private int deleted;

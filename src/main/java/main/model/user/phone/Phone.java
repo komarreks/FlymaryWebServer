@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import main.model.user.User;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
 
@@ -18,7 +19,9 @@ import java.util.UUID;
 public class Phone {
     //region FIELDS
     @Id
-    UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    String id;
     @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "user_id")
     User user;
@@ -27,7 +30,6 @@ public class Phone {
 
     //region CONSTRUCTORS
     public Phone(User user, String phone){
-        id = UUID.randomUUID();
         this.phone = phone;
         this.user = user;
     }

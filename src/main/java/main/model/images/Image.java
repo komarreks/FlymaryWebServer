@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import main.model.goods.Product;
 import main.model.goods.characs.Charac;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
 
@@ -15,8 +16,9 @@ import java.util.UUID;
 public class Image {
     //region FIELDS
     @Id
-    @Column(name = "id", nullable = false)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    private String id;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
@@ -28,7 +30,9 @@ public class Image {
 
     private String id1c;
 
-    private String path;
+    @Lob
+    @Column(columnDefinition = "MEDIUMBLOB")
+    private byte[] image64;
 
     private String name;
 
