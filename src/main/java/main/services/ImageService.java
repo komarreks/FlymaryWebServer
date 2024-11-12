@@ -17,6 +17,7 @@ public class ImageService {
     //region FIELDS
     private final ImageRepository repository;
     private final ProductSevice productSevice;
+    private final ViewFeaturesService viewFeaturesService;
     //endregion
 
     //region METHODS
@@ -40,6 +41,7 @@ public class ImageService {
                 image.setId1c(id1c);
                 image.setProduct(productSevice.findById1c(jsonNode.get("product_id1c").textValue()));
                 image.setCharac(productSevice.findCharacById1c(jsonNode.get("charac_id1c").textValue()));
+                image.setBanner(viewFeaturesService.findById1c(jsonNode.get("banner_id1c").textValue()));
                 image.setName(jsonNode.get("name").textValue());
 
                 try {

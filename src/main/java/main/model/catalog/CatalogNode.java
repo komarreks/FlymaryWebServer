@@ -50,7 +50,6 @@ public class CatalogNode {
     //region METHODS
     public void addProduct(Product product){
         NodeProduct nodeProduct = new NodeProduct();
-        nodeProduct.setId(UUID.randomUUID());
         nodeProduct.setNode(this);
         nodeProduct.setProduct(product);
         products.add(nodeProduct);

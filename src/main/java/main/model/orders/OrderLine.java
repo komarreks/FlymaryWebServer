@@ -6,6 +6,8 @@ import lombok.Setter;
 import main.model.goods.Product;
 import main.model.goods.characs.Charac;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Entity
@@ -23,11 +25,11 @@ public class OrderLine {
     @JoinColumn(name = "charac_id")
     private Charac charac;
 
-    private int count;
+    private BigDecimal count;
 
-    private double price;
+    private BigDecimal price;
 
-    private double sum;
+    private BigDecimal sum;
 
     private int deleted;
 }

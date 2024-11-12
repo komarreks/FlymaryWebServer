@@ -6,11 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import main.answers.SimpleAnswer;
 import main.answers.StatusLoad;
-import main.model.goods.ProductReposytory;
-import main.model.goods.characs.CharacRepository;
 import main.model.orders.*;
-import main.model.user.User;
-import main.model.user.UserRepository;
 import main.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,24 +14,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+
 import java.util.List;
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/orders")
 public class OrdersController {
-    //region COMPONENTS
+    //region FIELDS
     @Autowired
     OrderService service;
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    ProductReposytory productReposytory;
-    @Autowired
-    CharacRepository characRepository;
-    @Autowired
-    OrderLineRepository orderLineRepository;
     //endregion
 
     //region REST API METHODS
@@ -117,15 +105,31 @@ public class OrdersController {
     //endregion
 
     //region OTHER METHODS
+
+    /**
+     * Метод возвращает список заказов с определенным статусом
+     * @param orderStatus
+     * @return
+     */
     private List<Order> getOrdersWithStatus(OrderStatus orderStatus){
         return service.findByStatus(orderStatus);
     }
 
+    /**
+     * Метод возвращает зафинализированные заказы
+     * @return
+     */
     private List<Order> getOrdersFinished(){
         return getOrdersWithStatus(OrderStatus.IN_WORK).stream()
                 .filter(order -> order.getId1c() == null).toList();
     }
 
+    /**
+     * Метод конвертирует сущности заказов в образ JSON
+     * пока располагается здесь, возможно потом будет вынесен в DTO класс
+     * @param orders
+     * @return
+     */
     private ObjectNode createOrderJsonArray(List<Order> orders){
         ObjectMapper mapper = new ObjectMapper();
 

@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.UUID;
 
-public interface NodeProductRepository extends JpaRepository<NodeProduct, UUID> {
+public interface NodeProductRepository extends JpaRepository<NodeProduct, String> {
 }

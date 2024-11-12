@@ -7,6 +7,7 @@ import main.model.images.Image;
 import main.model.goods.goodpropery.GoodPropertyValue;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +37,8 @@ public class Product {
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private List<Image> images;
+
+    private BigDecimal price;
     //endregion
 
     //region METHODS

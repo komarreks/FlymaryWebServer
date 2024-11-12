@@ -8,6 +8,7 @@ import main.model.images.Image;
 import main.model.goods.characs.characproperty.CharacPropertyValue;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,9 @@ public class Charac{
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "charac_id")
     private List<Image> images;
+
+    private BigDecimal price;
+
     //endregion
 
     //region METHODS

@@ -8,6 +8,7 @@ import main.model.goods.characs.Charac;
 import main.model.user.User;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,14 +58,14 @@ public class Order {
         lines = new ArrayList<>();
     }
 
-    public void addLine(Product product, Charac charac, int count, double price){
+    public void addLine(Product product, Charac charac, BigDecimal count, BigDecimal price){
         OrderLine orderLine = new OrderLine();
         orderLine.setOrderLinePK(new OrderLinePK(lines.size() + 1, this));
         orderLine.setProduct(product);
         orderLine.setCharac(charac);
         orderLine.setCount(count);
         orderLine.setPrice(price);
-        orderLine.setSum(count * price);
+        orderLine.setSum(count.multiply(price));
 
         lines.add(orderLine);
     }
@@ -95,11 +96,11 @@ public class Order {
         deletedLine.setDeleted(1);
     }
 
-    public void changeCount(int lineNumber, int newCount){
+    public void changeCount(int lineNumber, BigDecimal newCount){
         for (OrderLine line: lines) {
             if (line.getOrderLinePK().getLineNumber() == lineNumber){
                 line.setCount(newCount);
-                line.setSum(line.getCount() * line.getPrice());
+                line.setSum(line.getCount().multiply(line.getPrice()));
             }
         }
     }

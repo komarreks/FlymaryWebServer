@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import main.model.catalog.CatalogNode;
 import main.model.goods.Product;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
 
@@ -17,14 +18,16 @@ import java.util.UUID;
 public class NodeProduct {
     //region FIELDS
     @Id
-    UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    private String id;
 
     @ManyToOne
     @JoinColumn(name = "node_id")
-    CatalogNode node;
+    private CatalogNode node;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
-    Product product;
+    private Product product;
     //endregion
 }

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import main.model.goods.Product;
 import main.model.goods.characs.Charac;
+import main.model.viewfeatures.banners.Banner;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
@@ -27,6 +28,10 @@ public class Image {
     @ManyToOne
     @JoinColumn(name = "charac_id")
     private Charac charac;
+
+    @ManyToOne
+    @JoinColumn(name = "banner_id")
+    private Banner banner;
 
     private String id1c;
 

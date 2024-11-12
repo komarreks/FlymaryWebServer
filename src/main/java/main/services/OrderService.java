@@ -13,14 +13,12 @@ import main.model.orders.OrderLineRepository;
 import main.model.orders.OrderRepository;
 import main.model.orders.OrderStatus;
 import main.model.user.UserRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -59,6 +57,7 @@ public class OrderService {
             }
 
             if (order != null){
+                //TODO проверить загрзку даты
                 //order.setDate(jsOrder.get("date"));
                 order.setStatus(OrderStatus.getStatus(jsOrder.get("status").textValue()));
                 order.setUser(userRepository.findById1c(jsOrder.get("userId1c").textValue()));
@@ -70,8 +69,8 @@ public class OrderService {
                 for (JsonNode line : jsLines) {
                     Product product = productSevice.findById1c(line.get("productId1c").textValue());
                     Charac charac = productSevice.findCharacById1c(line.get("characId1c").textValue());
-                    int count = line.get("count").intValue();
-                    double price = line.get("price").doubleValue();
+                    BigDecimal count = line.get("count").decimalValue();
+                    BigDecimal price = line.get("price").decimalValue();
 
                     order.addLine(product, charac, count, price);
                 }
@@ -119,8 +118,8 @@ public class OrderService {
             if (charac == null){return new SimpleAnswer(true,"not found charac");}
         }
 
-        int count = jsOrderLine.get("count").intValue();
-        double price = jsOrderLine.get("price").doubleValue();
+        BigDecimal count = jsOrderLine.get("count").decimalValue();
+        BigDecimal price = jsOrderLine.get("price").decimalValue();
 
         order.addLine(product, charac, count, price);
 
@@ -137,7 +136,7 @@ public class OrderService {
         if (order == null){return new SimpleAnswer(true,"not found order");}
 
         int lineNumber = jsOrderLine.get("lineNumber").intValue();
-        int newCount = jsOrderLine.get("newCount").intValue();
+        BigDecimal newCount = jsOrderLine.get("newCount").decimalValue();
 
         order.changeCount(lineNumber, newCount);
 

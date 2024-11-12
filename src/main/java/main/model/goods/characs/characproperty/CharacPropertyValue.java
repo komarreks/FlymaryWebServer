@@ -4,12 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import main.model.goods.characs.Charac;
-import main.model.goods.goodpropery.GoodPropertyPK;
-import main.model.propertyes.Property;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Getter
 @Setter
