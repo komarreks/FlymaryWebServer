@@ -6,4 +6,5 @@ public interface BannerRepository extends JpaRepository<Banner, String> {
 
     Banner findById1c(String id1c);
 
+    Banner findByName(String name);
 }
