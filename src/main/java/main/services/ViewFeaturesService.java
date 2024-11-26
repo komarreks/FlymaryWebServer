@@ -36,6 +36,7 @@ public class ViewFeaturesService {
 
             if (banerFromDB != null) {
                 banner.setId(banerFromDB.getId());
+                banner.setImages(banerFromDB.getImages());
             }else {
                 loadLine.setStatus("Загружен");
             }
@@ -61,25 +62,19 @@ public class ViewFeaturesService {
      * Метод возвращает главный баннер для мобильного приложения со списком изображений
      * @return
      */
-    public BannerDTO getMainBannerMobileApps(){
-        Banner banner = bannerRepository.findByName("MobileApps");
+    public List<String> getMainBannerMobileApps(){
+        Banner banner = bannerRepository.findByName("MainBannerApps");
 
-        BannerDTO bannerDTO = new BannerDTO();
+        List<String> images = new ArrayList<>();
 
         if (banner != null){
-            bannerDTO.setId(banner.getId());
-            bannerDTO.setName(banner.getName());
-
-            List<String> images = new ArrayList<>();
 
             for (Image image: banner.getImages()){
                 images.add(image.getName());
             }
-
-            bannerDTO.setImages(images);
         }
 
-        return bannerDTO;
+        return images;
     }
     //endregion
 }

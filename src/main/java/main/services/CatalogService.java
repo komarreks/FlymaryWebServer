@@ -37,10 +37,7 @@ public class CatalogService {
      * @return
      */
     public List<CatalogDTO> getAllDto(){
-        List<Catalog> catalogs = catalogRepository.findByDeleted(0).stream()
-                .filter(c -> c.getDeleted() == 0)
-                .sorted((c1,c2) -> Integer.compare(c1.getSorting(), c2.getSorting()))
-                .toList();
+        List<Catalog> catalogs = getAll();
 
         List<CatalogDTO> catalogDTOs = new ArrayList<>();
 
@@ -49,7 +46,7 @@ public class CatalogService {
             catalogDTO.setId(catalog.getId());
             catalogDTO.setName(catalog.getName());
             catalogDTO.setTextButton(catalog.getTextButton());
-            catalogDTO.setImage64(Base64.getEncoder().encodeToString(catalog.getImage64()));
+            //catalogDTO.setImage64(Base64.getEncoder().encodeToString(catalog.getImage64()));
             catalogDTOs.add(catalogDTO);
         }
 
@@ -83,5 +80,13 @@ public class CatalogService {
         }
 
         return statusLoad;
+    }
+
+    public byte[] getImage(String id) {
+        Catalog catalog = catalogRepository.findById(id).orElse(null);
+
+        if (catalog == null) return null;
+
+        return catalog.getImage64();
     }
 }

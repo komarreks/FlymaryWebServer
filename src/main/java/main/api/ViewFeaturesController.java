@@ -2,7 +2,6 @@ package main.api;
 
 import lombok.RequiredArgsConstructor;
 import main.answers.StatusLoad;
-import main.dto.BannerDTO;
 import main.model.viewfeatures.banners.Banner;
 import main.services.ViewFeaturesService;
 import org.springframework.http.HttpStatus;
@@ -29,7 +28,7 @@ public class ViewFeaturesController{
     }
 
     @GetMapping("banner/main/app")
-    public BannerDTO mobileAppMainBanner(){
+    public List<String> mobileAppMainBanner(){
         return viewFeaturesService.getMainBannerMobileApps();
     }
     //endregion

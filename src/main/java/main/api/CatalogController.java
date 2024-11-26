@@ -7,6 +7,7 @@ import main.model.catalog.Catalog;
 import main.model.catalog.CatalogRepository;
 import main.services.CatalogService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,17 @@ public class CatalogController {
     @GetMapping("/all")
     public ResponseEntity all(){
         return ResponseEntity.status(HttpStatus.OK).body(service.getAll());
+    }
+
+    @GetMapping(value = "/{id}/image", produces = MediaType.IMAGE_JPEG_VALUE)
+    public @ResponseBody byte[] getImage(@PathVariable String id){
+        byte[] imageBody = service.getImage(id);
+
+        if(imageBody != null){
+            return imageBody;
+        }
+
+        return null;
     }
     //endregion
 

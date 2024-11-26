@@ -9,4 +9,6 @@ public interface ImageRepository extends JpaRepository<Image, UUID> {
 
     Image findById1c(String id1c);
 
+    Image findByName(String name);
+
 }
