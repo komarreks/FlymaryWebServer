@@ -3,11 +3,13 @@ package main.model.goods.goodpropery;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import main.model.goods.Product;
 
 @Embeddable
 @NoArgsConstructor
+@Getter
 public class GoodPropertyPK {
 
     @ManyToOne

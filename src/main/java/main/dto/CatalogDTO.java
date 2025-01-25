@@ -10,5 +10,7 @@ public class CatalogDTO {
 
     private String textButton;
 
+    private String type;
+
     //private String image64;
 }

@@ -50,5 +50,22 @@ public class Product {
     public void addProperty(GoodPropertyValue property){
         propertyes.add(property);
     }
+
+    public <T> Object getProperty(String property){
+        for (GoodPropertyValue propertyValue : propertyes) {
+            if (propertyValue.getGoodPropertyPK().getProperty().equals(property)) {
+                return propertyValue.getValue();
+            }
+        }
+        return "";
+    }
+
+    public boolean isVisible(){
+        Object value = getProperty("notVisible");
+
+        Boolean bool = (Boolean) value;
+
+        return !bool;
+    }
     //endregion
 }

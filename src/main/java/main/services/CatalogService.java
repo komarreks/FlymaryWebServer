@@ -46,6 +46,7 @@ public class CatalogService {
             catalogDTO.setId(catalog.getId());
             catalogDTO.setName(catalog.getName());
             catalogDTO.setTextButton(catalog.getTextButton());
+            catalogDTO.setType(catalog.getType());
             //catalogDTO.setImage64(Base64.getEncoder().encodeToString(catalog.getImage64()));
             catalogDTOs.add(catalogDTO);
         }

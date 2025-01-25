@@ -25,7 +25,7 @@ public class CatalogController {
     //region GET
     @GetMapping("/all")
     public ResponseEntity all(){
-        return ResponseEntity.status(HttpStatus.OK).body(service.getAll());
+        return ResponseEntity.status(HttpStatus.OK).body(service.getAllDto());
     }
 
     @GetMapping(value = "/{id}/image", produces = MediaType.IMAGE_JPEG_VALUE)

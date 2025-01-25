@@ -39,6 +39,8 @@ public class Catalog {
 
     private int deleted;
 
+    private String type;
+
     private List<String> goodProperty;
 
     private List<String> characProperty;
