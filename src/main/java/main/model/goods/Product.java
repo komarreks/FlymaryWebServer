@@ -51,6 +51,11 @@ public class Product {
         propertyes.add(property);
     }
 
+    public BigDecimal getPrice() {
+        if (price == null) return BigDecimal.ZERO;
+        return price;
+    }
+
     public <T> Object getProperty(String property){
         for (GoodPropertyValue propertyValue : propertyes) {
             if (propertyValue.getGoodPropertyPK().getProperty().equals(property)) {

@@ -53,6 +53,7 @@ public class ProductSevice {
 
             product.setId1c(jsProduct.get("id1c").textValue());
             product.setName(jsProduct.get("name").textValue());
+            product.setPrice(jsProduct.get("price").decimalValue());
 
             product.clearPropertyes();
             ArrayNode jsPropertyes = (ArrayNode) jsProduct.get("propertyes");
@@ -112,6 +113,7 @@ public class ProductSevice {
             if (charac.getProduct() == null) charac.setProduct(reposytory.findById1c(productId1c));
 
             charac.setName(jsCharac.get("name").textValue());
+            charac.setPrice(jsCharac.get("price").decimalValue());
 
             charac.clearPropertyes();
 
@@ -164,6 +166,10 @@ public class ProductSevice {
 
     public Product findById(String productId) {
         return reposytory.findById(productId).orElse(null);
+    }
+
+    public List<Charac> getCharacs(Product product){
+        return characRepository.findByProduct(product).stream().filter(Charac::isVisible).toList();
     }
     //endregion
 

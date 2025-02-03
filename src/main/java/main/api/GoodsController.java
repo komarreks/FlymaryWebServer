@@ -1,5 +1,6 @@
 package main.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.RequiredArgsConstructor;
 
@@ -8,10 +9,7 @@ import main.services.ProductSevice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -46,6 +44,17 @@ public class GoodsController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
     }
+
+//    @PostMapping(value = "updatePrices", consumes = {MediaType.APPLICATION_JSON_VALUE})
+//    public ResponseEntity updatePrices(@RequestBody ArrayNode jsPrices){
+//        boolean ok = service.updatePrice(jsPrices);
+//
+//        if (ok){
+//            return ResponseEntity.status(HttpStatus.CREATED).build();
+//        }else {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
     //endregion
 
 }

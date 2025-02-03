@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import main.model.goods.Product;
+import main.model.goods.goodpropery.GoodPropertyValue;
 import main.model.images.Image;
 import main.model.goods.characs.characproperty.CharacPropertyValue;
 import org.hibernate.annotations.UuidGenerator;
@@ -52,6 +53,36 @@ public class Charac{
 
     public void addProperty(CharacPropertyValue newProperty) {
         propertyes.add(newProperty);
+    }
+
+    public BigDecimal getPrice() {
+        if (price == null) return BigDecimal.ZERO;
+        return price;
+    }
+
+    public <T> Object getProperty(String property){
+        for (CharacPropertyValue propertyValue : propertyes) {
+            if (propertyValue.getCharacPropertyPK().getProperty().equals(property)) {
+                return propertyValue.getValue();
+            }
+        }
+        return "";
+    }
+
+    public boolean isVisible(){
+        Object value = getProperty("notVisible");
+
+        Boolean bool = (Boolean) value;
+
+        return !bool;
+    }
+
+    public Integer getValue(){
+        Object value = getProperty("value");
+
+        BigDecimal intValue = (BigDecimal) value;
+
+        return intValue.intValue();
     }
     //endregion
 }

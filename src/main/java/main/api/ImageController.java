@@ -31,6 +31,11 @@ public class ImageController {
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
     }
 
+    /**
+     * получение файла изображения из репозитория по имени картинки (они уникальны)
+     * @param name
+     * @return
+     */
     @GetMapping(value = "/{name}", produces = MediaType.IMAGE_JPEG_VALUE)
     public @ResponseBody byte[] getImage(@PathVariable String name){
         byte[] imageBody = service.getImageByName(name);
