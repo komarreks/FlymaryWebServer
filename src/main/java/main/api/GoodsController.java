@@ -45,16 +45,30 @@ public class GoodsController {
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
     }
 
-//    @PostMapping(value = "updatePrices", consumes = {MediaType.APPLICATION_JSON_VALUE})
-//    public ResponseEntity updatePrices(@RequestBody ArrayNode jsPrices){
-//        boolean ok = service.updatePrice(jsPrices);
-//
-//        if (ok){
-//            return ResponseEntity.status(HttpStatus.CREATED).build();
-//        }else {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
-    //endregion
+    /**
+     * метод обновления цен
+     * @param jsPices
+     * @return
+     */
+    @PostMapping(value = "/regularupdateprice", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity regularUpdatePrice(@RequestBody ArrayNode jsPices){
+        StatusLoad statusLoad = service.regularUpdatePrice(jsPices);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
+    }
+
+    /**
+     * обновление остатко
+     * @param jsCounts
+     * @return
+     */
+    @PostMapping(value = "/updatecounts", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity updateCounts(@RequestBody ArrayNode jsCounts){
+        StatusLoad statusLoad = service.updateCounts(jsCounts);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
+    }
+
+
 
 }

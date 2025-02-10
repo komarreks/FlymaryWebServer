@@ -54,6 +54,7 @@ public class ProductSevice {
             product.setId1c(jsProduct.get("id1c").textValue());
             product.setName(jsProduct.get("name").textValue());
             product.setPrice(jsProduct.get("price").decimalValue());
+            product.setCount(jsProduct.get("count").decimalValue());
 
             product.clearPropertyes();
             ArrayNode jsPropertyes = (ArrayNode) jsProduct.get("propertyes");
@@ -114,6 +115,7 @@ public class ProductSevice {
 
             charac.setName(jsCharac.get("name").textValue());
             charac.setPrice(jsCharac.get("price").decimalValue());
+            charac.setCount(jsCharac.get("count").decimalValue());
 
             charac.clearPropertyes();
 
@@ -170,6 +172,78 @@ public class ProductSevice {
 
     public List<Charac> getCharacs(Product product){
         return characRepository.findByProduct(product).stream().filter(Charac::isVisible).toList();
+    }
+
+    /**
+     * регулярное обновление цен
+     * @param jsPices
+     * @return
+     */
+    public StatusLoad regularUpdatePrice(ArrayNode jsPices) {
+        StatusLoad statusLoad = new StatusLoad();
+
+        for (JsonNode jsPrice: jsPices) {
+            String productId = jsPrice.get("productId").textValue();
+            String characId = jsPrice.get("characId").textValue();
+            BigDecimal price = jsPrice.get("price").decimalValue();
+
+            Product product = findById1c(productId);
+
+            if (product == null) continue;
+
+            Charac charac = findCharacById1c(characId);
+
+            LoadLine loadLine = new LoadLine(product.getId1c());
+
+            if (charac == null){
+                product.setPrice(price);
+                loadLine.setStatus("цена обновлена");
+                reposytory.save(product);
+            }else {
+                charac.setPrice(price);
+                loadLine.setStatus("цена "+ charac.getName() + " обновлена");
+                characRepository.save(charac);
+            }
+
+            statusLoad.addLog(loadLine);
+        }
+
+        return statusLoad;
+    }
+
+    /**
+     * Обновление остатков
+     * @param jsCounts
+     * @return
+     */
+    public StatusLoad updateCounts(ArrayNode jsCounts) {
+        StatusLoad statusLoad = new StatusLoad();
+        for (JsonNode jsCount: jsCounts) {
+            String productId1c = jsCount.get("productId1c").textValue();
+            String characId1c = jsCount.get("characId1c").textValue();
+            BigDecimal count = jsCount.get("count").decimalValue();
+
+            Product product = findById1c(productId1c);
+
+            if (product == null) continue;
+
+            Charac charac = findCharacById1c(characId1c);
+
+            LoadLine loadLine = new LoadLine(product.getId1c());
+
+            if (charac == null){
+                product.setCount(count);
+                loadLine.setStatus("Остаток обновлен");
+                reposytory.save(product);
+            }else {
+                charac.setCount(count);
+                loadLine.setStatus("остаток "+ charac.getName() + " обновлен");
+                characRepository.save(charac);
+            }
+
+            statusLoad.addLog(loadLine);
+        }
+        return statusLoad;
     }
     //endregion
 

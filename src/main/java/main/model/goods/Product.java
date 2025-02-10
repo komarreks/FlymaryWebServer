@@ -39,6 +39,8 @@ public class Product {
     private List<Image> images;
 
     private BigDecimal price;
+
+    private BigDecimal count;
     //endregion
 
     //region METHODS
@@ -54,6 +56,11 @@ public class Product {
     public BigDecimal getPrice() {
         if (price == null) return BigDecimal.ZERO;
         return price;
+    }
+
+    public BigDecimal getCount(){
+        if (count == null) return BigDecimal.ZERO;
+        return count;
     }
 
     public <T> Object getProperty(String property){
