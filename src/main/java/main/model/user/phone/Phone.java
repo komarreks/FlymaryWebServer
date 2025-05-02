@@ -7,6 +7,7 @@ import lombok.Setter;
 import main.model.user.User;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -26,6 +27,8 @@ public class Phone {
     @JoinColumn(name = "user_id")
     User user;
     String phone;
+    int lastSendCode;
+    LocalDateTime dateOfSendCode;
     //endregion
 
     //region CONSTRUCTORS

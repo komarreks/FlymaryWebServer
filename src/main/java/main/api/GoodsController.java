@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.RequiredArgsConstructor;
 
 import main.answers.StatusLoad;
+import main.dto.ProductDTO;
 import main.services.ProductSevice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -67,6 +68,18 @@ public class GoodsController {
         StatusLoad statusLoad = service.updateCounts(jsCounts);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(statusLoad);
+    }
+
+    /**
+     * Отдает DTO конкретного товара
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity getProduct(@PathVariable("id") String id){
+        ProductDTO productDTO = service.getProductDTOByIdProduct(id);
+
+        return ResponseEntity.status(HttpStatus.OK).body(productDTO);
     }
 
 

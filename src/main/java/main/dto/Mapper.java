@@ -3,7 +3,9 @@ package main.dto;
 import lombok.RequiredArgsConstructor;
 import main.model.catalog.CatalogNode;
 import main.model.catalog.nodechilddata.NodeProduct;
+import main.model.goods.Product;
 import main.model.goods.characs.Charac;
+import main.model.images.Image;
 import main.services.ProductSevice;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +42,7 @@ public class Mapper {
 
             if (characs.isEmpty()) {
                 if (Objects.equals(nodeProduct.getProduct().getPrice(), BigDecimal.ZERO))continue;
+                if (Objects.equals(nodeProduct.getProduct().getCount(), BigDecimal.ZERO))continue;
             }
 
             ProductDTO productDTO = new ProductDTO();
@@ -47,6 +50,7 @@ public class Mapper {
             productDTO.setName(nodeProduct.getProduct().getName());
             productDTO.setPrice(nodeProduct.getProduct().getPrice().doubleValue());
             productDTO.setFilterNode(nodeProduct.getNode().getId1c());
+            productDTO.setCount(nodeProduct.getProduct().getCount().doubleValue());
             productDTO.setImageUrl(nodeProduct.getProduct().getImages().stream().map(image -> {
                 return image.getName();
             }).toList());
@@ -61,6 +65,7 @@ public class Mapper {
 
                 if (!charac.isVisible())continue;
                 if (Objects.equals(charac.getPrice(), BigDecimal.ZERO))continue;
+                if (Objects.equals(charac.getCount(), BigDecimal.ZERO))continue;
 
                 CharacTDO characTDO = new CharacTDO();
 
@@ -71,6 +76,7 @@ public class Mapper {
                         image -> image.getName()
                 ).toList());
                 characTDO.setPrice(charac.getPrice().doubleValue());
+                characTDO.setCount(charac.getCount().doubleValue());
 
                 productDTO.getCharacTDOs().add(characTDO);
             }
@@ -79,5 +85,36 @@ public class Mapper {
         }
 
         return productDTOS;
+    }
+
+    public ProductDTO transferToProductsDTO(Product product){
+        ProductDTO productDTO = new ProductDTO();
+
+        productDTO.setId(product.getId());
+        productDTO.setName(product.getName());
+        productDTO.setPrice(product.getPrice().doubleValue());
+        productDTO.setCount(product.getCount().doubleValue());
+        productDTO.setFilterNode("");
+        productDTO.setImageUrl(product.getImages().stream().map(Image::getName).toList());
+
+        List<Charac> characs = productSevice.getCharacs(product);
+
+        if (characs != null){
+            for (Charac charac: characs){
+                if (!charac.isVisible())continue;
+                if (Objects.equals(charac.getPrice(), BigDecimal.ZERO))continue;
+                if (Objects.equals(charac.getCount(), BigDecimal.ZERO))continue;
+                CharacTDO characTDO = new CharacTDO();
+                characTDO.setId(charac.getId());
+                characTDO.setProductId(product.getId());
+                characTDO.setName(charac.getName());
+                characTDO.setPrice(charac.getPrice().doubleValue());
+                characTDO.setCount(charac.getCount().doubleValue());
+                characTDO.setImageUrl(charac.getImages().stream().map(Image::getName).toList());
+                productDTO.getCharacTDOs().add(characTDO);
+            }
+        }
+
+        return productDTO;
     }
 }

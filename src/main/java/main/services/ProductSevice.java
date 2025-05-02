@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.RequiredArgsConstructor;
 import main.answers.LoadLine;
 import main.answers.StatusLoad;
+import main.dto.Mapper;
+import main.dto.ProductDTO;
 import main.model.goods.Product;
 import main.model.goods.ProductReposytory;
 import main.model.goods.characs.Charac;
@@ -244,6 +246,14 @@ public class ProductSevice {
             statusLoad.addLog(loadLine);
         }
         return statusLoad;
+    }
+
+    public ProductDTO getProductDTOByIdProduct(String id) {
+        Product product = findById(id);
+
+        ProductDTO productDTO = new Mapper(this).transferToProductsDTO(product);
+
+        return productDTO;
     }
     //endregion
 

@@ -13,4 +13,5 @@ public class CharacTDO {
     private String name;
     private List<String> imageUrl;
     private Double price;
+    private Double count;
 }
