@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import main.answers.SimpleAnswer;
 import main.answers.StatusLoad;
+import main.dto.BasketDTO;
+import main.dto.BasketString;
 import main.model.orders.*;
 import main.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("api/orders")
 public class OrdersController {
     //region FIELDS
     @Autowired
@@ -103,6 +105,13 @@ public class OrdersController {
         return ResponseEntity.status(HttpStatus.OK).body(sa.getText());
     }
     //endregion
+
+    @GetMapping(value = "/basket/{uid}")
+    public ResponseEntity getBasket(@PathVariable("uid") String uid){
+        List<BasketString> lines = service.getBasket(uid);
+
+        return ResponseEntity.status(HttpStatus.OK).body(lines);
+    }
 
     //region OTHER METHODS
 

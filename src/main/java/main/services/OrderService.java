@@ -6,17 +6,19 @@ import lombok.RequiredArgsConstructor;
 import main.answers.LoadLine;
 import main.answers.SimpleAnswer;
 import main.answers.StatusLoad;
+import main.dto.BasketDTO;
+import main.dto.BasketString;
+import main.dto.Mapper;
 import main.model.goods.Product;
 import main.model.goods.characs.Charac;
-import main.model.orders.Order;
-import main.model.orders.OrderLineRepository;
-import main.model.orders.OrderRepository;
-import main.model.orders.OrderStatus;
+import main.model.orders.*;
+import main.model.user.User;
 import main.model.user.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +30,7 @@ public class OrderService {
     private final UserRepository userRepository;
     private final ProductSevice productSevice;
     private final OrderLineRepository orderLineRepository;
+    private final Mapper mapper;
 
     public StatusLoad loadChangedOrders(ArrayNode jsOrders){
         //TODO доделать загрузку изменений заказа из 1с
@@ -191,5 +194,38 @@ public class OrderService {
 
     public List<Order> findByStatus(OrderStatus orderStatus) {
         return orderRepository.findByStatus(orderStatus);
+    }
+
+    public List<BasketString> getBasket(String userId){
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) return null;
+
+        List<Order> orders = findByStatus(OrderStatus.OPEN, user);
+
+        List<BasketString> lines = new ArrayList<>();
+
+        if (orders.size() > 0){
+            Order order = orders.get(0);
+
+            for (OrderLine line : order.getLines()){
+                BasketString BasketString = new BasketString();
+                BasketString.setProductId(line.getProduct().getId());
+                //basketLine.setProduct(mapper.transferToProductsDTO(line.getProduct()));
+                BasketString.setCharacId(line.getCharac().getId());
+                //basketLine.setCharac(mapper.transferToCharacDTO(line.getCharac()));
+                BasketString.setCount(line.getCount());
+                BasketString.setPrice(line.getPrice());
+                BasketString.setTotal(BasketString.getCount().multiply(BasketString.getPrice()));
+                lines.add(BasketString);
+            }
+
+            return lines;
+        }
+
+        return new ArrayList<BasketString>();
+    }
+
+    public List<Order> findByStatus(OrderStatus orderStatus, User user) {
+        return orderRepository.findByStatusAndUser(orderStatus, user);
     }
 }

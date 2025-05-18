@@ -117,4 +117,16 @@ public class Mapper {
 
         return productDTO;
     }
+
+    public CharacTDO transferToCharacDTO(Charac charac) {
+        CharacTDO characTDO = new CharacTDO();
+        characTDO.setId(charac.getId());
+        characTDO.setProductId(charac.getProduct().getId());
+        characTDO.setName(charac.getName());
+        characTDO.setPrice(charac.getPrice().doubleValue());
+        characTDO.setCount(charac.getCount().doubleValue());
+        characTDO.setImageUrl(charac.getImages().stream().map(Image::getName).toList());
+
+        return characTDO;
+    }
 }
